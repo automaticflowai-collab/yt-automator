@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YT Automator — Suporte Técnico</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #FF0000;
+    --red-dark: #CC0000;
+    --red-glow: rgba(255,0,0,0.15);
+    --black: #0A0A0A;
+    --surface: #141414;
+    --surface2: #1E1E1E;
+    --surface3: #282828;
+    --border: rgba(255,255,255,0.08);
+    --border-red: rgba(255,0,0,0.3);
+    --text: #FFFFFF;
+    --text-muted: #888888;
+    --text-dim: #555555;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--black);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── GRID BACKGROUND ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,0,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,0,0,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── LOGIN SCREEN ─── */
+  #login-screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    background: var(--black);
+    padding: 24px;
+  }
+
+  .login-box {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border-red);
+    border-radius: 4px;
+    padding: 48px 40px;
+    position: relative;
+    box-shadow: 0 0 60px rgba(255,0,0,0.08);
+  }
+
+  .login-box::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 0; right: 0;
+    height: 2px;
+    background: var(--red);
+  }
+
+  .login-logo {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .login-logo .yt-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--red);
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .login-logo .yt-icon::after {
+    content: '';
+    border-left: 18px solid white;
+    border-top: 11px solid transparent;
+    border-bottom: 11px solid transparent;
+    margin-left: 4px;
+  }
+
+  .login-logo h1 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    letter-spacing: 3px;
+    color: var(--text);
+  }
+
+  .login-logo p {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .form-group input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus {
+    border-color: var(--red);
+  }
+
+  .form-group input::placeholder {
+    color: var(--text-dim);
+  }
+
+  .form-group .hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  .btn-login {
+    width: 100%;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 14px;
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn-login:hover { background: var(--red-dark); }
+  .btn-login:active { transform: scale(0.99); }
+
+  .login-error {
+    background: rgba(255,0,0,0.1);
+    border: 1px solid var(--border-red);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #ff6666;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ─── MAIN APP ─── */
+  #app {
+    display: none;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── SIDEBAR ─── */
+  #sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sidebar-logo .icon {
+    width: 36px;
+    height: 36px;
+    background: var(--red);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo .icon::after {
+    content: '';
+    border-left: 13px solid white;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    margin-left: 3px;
+  }
+
+  .sidebar-logo span {
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: 2px;
+  }
+
+  .sidebar-nav {
+    padding: 16px 12px;
+    flex: 1;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    margin-bottom: 2px;
+    border: 1px solid transparent;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+
+  .nav-item.active {
+    background: var(--red-glow);
+    color: var(--text);
+    border-color: var(--border-red);
+  }
+
+  .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .api-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .api-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3B6D11;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ─── MAIN CONTENT ─── */
+  #main {
+    margin-left: 240px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── PAGES ─── */
+  .page { display: none; flex: 1; }
+  .page.active { display: flex; flex-direction: column; }
+
+  /* ─── JARVIS PAGE ─── */
+  #page-jarvis {
+    height: 100vh;
+  }
+
+  .chat-header {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+  }
+
+  .chat-header-avatar {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--red) 0%, #800000 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  .chat-header-info h2 {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .chat-header-info p {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  #chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface3) transparent;
+  }
+
+  .msg { display: flex; gap: 12px; align-items: flex-start; animation: fadeIn 0.2s ease; }
+  .msg.user { flex-direction: row-reverse; }
+
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  .msg-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    letter-spacing: 1px;
+  }
+
+  .msg-avatar.bot { background: linear-gradient(135deg, var(--red) 0%, #800000 100%); }
+  .msg-avatar.user { background: var(--surface3); color: var(--text-muted); font-family: var(--font-body); }
+
+  .msg-bubble {
+    max-width: 75%;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    line-height: 1.65;
+    border-radius: 2px;
+  }
+
+  .msg-bubble.bot {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-top-left-radius: 0;
+  }
+
+  .msg-bubble.user {
+    background: var(--red-glow);
+    border: 1px solid var(--border-red);
+    border-top-right-radius: 0;
+    color: #ffcccc;
+  }
+
+  .msg-bubble code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 2px;
+    color: #ff9999;
+  }
+
+  .msg-bubble pre {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    padding: 12px;
+    border-radius: 2px;
+    overflow-x: auto;
+    margin-top: 8px;
+    line-height: 1.5;
+    color: #ffaaaa;
+  }
+
+  .typing-indicator {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 14px 16px;
+  }
+
+  .typing-indicator span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    animation: bounce 1.2s infinite;
+  }
+
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+  .quick-questions {
+    padding: 12px 28px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .quick-btn {
+    font-size: 11.5px;
+    padding: 6px 12px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: all 0.15s;
+  }
+
+  .quick-btn:hover {
+    border-color: var(--border-red);
+    color: var(--text);
+    background: var(--red-glow);
+  }
+
+  .chat-input-area {
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    background: var(--surface);
+  }
+
+  #chat-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    height: 44px;
+  }
+
+  #chat-input:focus { border-color: var(--border-red); }
+  #chat-input::placeholder { color: var(--text-dim); }
+
+  .btn-send {
+    width: 44px;
+    height: 44px;
+    background: var(--red);
+    border: none;
+    border-radius: 2px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-send:hover { background: var(--red-dark); }
+  .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ─── DOWNLOADS PAGE ─── */
+  #page-downloads {
+    padding: 40px 40px;
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-size: 36px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+
+  .page-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+  }
+
+  .downloads-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    max-width: 900px;
+  }
+
+  .download-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .download-card:hover { border-color: var(--border-red); }
+
+  .download-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--red);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .download-card:hover::before { opacity: 1; }
+
+  .card-icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .card-desc {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .card-tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    background: var(--red-glow);
+    border: 1px solid var(--border-red);
+    color: #ff9999;
+    margin-bottom: 16px;
+  }
+
+  .btn-download {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    justify-content: center;
+  }
+
+  .btn-download:hover {
+    background: var(--red-glow);
+    border-color: var(--border-red);
+    color: white;
+  }
+
+  /* ─── GUIDE PAGE ─── */
+  #page-guide {
+    padding: 40px;
+    overflow-y: auto;
+    max-height: 100vh;
+  }
+
+  .guide-section {
+    max-width: 720px;
+    margin-bottom: 40px;
+  }
+
+  .guide-section h3 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    color: var(--red);
+  }
+
+  .guide-step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .guide-step-num {
+    width: 28px;
+    height: 28px;
+    background: var(--red);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .guide-step-content h4 {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .guide-step-content p {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .guide-step-content code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: rgba(255,255,255,0.05);
+    padding: 1px 5px;
+    border-radius: 2px;
+    color: #ff9999;
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+
+  /* ─── MOBILE ─── */
+  @media (max-width: 768px) {
+    #sidebar { width: 180px; }
+    .sidebar-logo { padding: 16px 14px; }
+    .sidebar-logo span { font-size: 15px; }
+    #main { margin-left: 180px; }
+    .chat-input-area, .quick-questions { padding: 10px 14px; }
+    #chat-messages { padding: 14px; }
+    #page-downloads, #page-guide { padding: 20px 14px; }
+    .msg-bubble { max-width: 90%; }
+  }
+
+  @media (max-width: 480px) {
+    #sidebar { width: 140px; }
+    #main { margin-left: 140px; }
+    .sidebar-logo span { font-size: 13px; }
+    .nav-item { font-size: 12px; padding: 9px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="yt-icon"></div>
+      <h1>YT AUTOMATOR</h1>
+      <p>Suporte Técnico · Powered by AI</p>
+    </div>
+    <div class="form-group">
+      <label>Senha de acesso</label>
+      <input type="password" id="login-pass" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <div class="form-group">
+      <label>Sua chave API Claude</label>
+      <input type="password" id="login-api" placeholder="sk-ant-..." onkeydown="if(event.key==='Enter')doLogin()" />
+      <div class="hint">Crie em console.anthropic.com · Custo: ~U$1-2/mês para uso normal</div>
+    </div>
+    <button class="btn-login" onclick="doLogin()">ENTRAR</button>
+    <div class="login-error" id="login-error">Senha incorreta. Tente novamente.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sidebar-logo">
+      <div class="icon"></div>
+      <span>YT AUTOMATOR</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showPage('jarvis', this)">
+        <span class="nav-icon">🤖</span>
+        <span>Jarvis IA</span>
+      </div>
+      <div class="nav-item" onclick="showPage('downloads', this)">
+        <span class="nav-icon">📦</span>
+        <span>Downloads</span>
+      </div>
+      <div class="nav-item" onclick="showPage('guide', this)">
+        <span class="nav-icon">📋</span>
+        <span>Guia Rápido</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="api-status">
+        <div class="api-dot"></div>
+        <span>Claude conectado</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- JARVIS PAGE -->
+    <div class="page active" id="page-jarvis">
+      <div class="chat-header">
+        <div class="chat-header-avatar">J</div>
+        <div class="chat-header-info">
+          <h2>Jarvis — Suporte Técnico</h2>
+          <p>Especialista em n8n · APIs · Configuração · Erros</p>
+        </div>
+      </div>
+      <div id="chat-messages">
+        <div class="msg">
+          <div class="msg-avatar bot">J</div>
+          <div class="msg-bubble bot">Olá! Sou o Jarvis, seu suporte técnico para esta automação.<br><br>Fui treinado com todo o processo de instalação — incluindo cada erro que apareceu durante 2 dias de construção e como foi resolvido.<br><br>Estou aqui para te ajudar a configurar o n8n, resolver erros de API e colocar tudo funcionando. Qual é sua dúvida?</div>
+        </div>
+      </div>
+      <div class="quick-questions">
+        <button class="quick-btn" onclick="quickAsk('Como organizo as pastas no Google Drive?')">Google Drive</button>
+        <button class="quick-btn" onclick="quickAsk('Erro no Shotstack: Downloading assets failed.')">Erro Shotstack</button>
+        <button class="quick-btn" onclick="quickAsk('O vídeo está indo para o canal errado no YouTube.')">Canal errado</button>
+        <button class="quick-btn" onclick="quickAsk('Quais APIs preciso ativar no Google Cloud?')">Google Cloud</button>
+        <button class="quick-btn" onclick="quickAsk('O node LISTA MP3s está pegando músicas de todas as pastas.')">LISTA MP3s</button>
+        <button class="quick-btn" onclick="quickAsk('Qual é o custo mensal para rodar essa automação?')">Custos</button>
+      </div>
+      <div class="chat-input-area">
+        <input id="chat-input" placeholder="Descreva seu erro ou dúvida técnica..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}" />
+        <button class="btn-send" id="send-btn" onclick="sendMsg()">↑</button>
+      </div>
+    </div>
+
+    <!-- DOWNLOADS PAGE -->
+    <div class="page" id="page-downloads">
+      <div class="page-title">DOWNLOADS</div>
+      <div class="page-subtitle">Todos os arquivos necessários para instalar a automação</div>
+      <div class="downloads-grid">
+        <div class="download-card">
+          <div class="card-icon">⚡</div>
+          <div class="card-tag">Principal</div>
+          <div class="card-title">Workflow n8n</div>
+          <div class="card-desc">Arquivo JSON com todo o fluxo de automação pronto. Importe diretamente no n8n e configure suas credenciais.</div>
+          <a class="btn-download" href="workflow.json" download>
+            ↓ Baixar workflow.json
+          </a>
+        </div>
+        <div class="download-card">
+          <div class="card-icon">📖</div>
+          <div class="card-tag">Guia completo</div>
+          <div class="card-title">Manual de Instalação</div>
+          <div class="card-desc">Guia passo a passo com todas as APIs, configurações e prints. Do zero até o primeiro vídeo postado.</div>
+          <a class="btn-download" href="GUIA_AUTOMACAO_YOUTUBE.docx" download>
+            ↓ Baixar Guia.docx
+          </a>
+        </div>
+        <div class="download-card">
+          <div class="card-icon">🤖</div>
+          <div class="card-tag">Bônus</div>
+          <div class="card-title">Prompt do Agente</div>
+          <div class="card-desc">Prompt completo para usar o Jarvis no Claude ou ChatGPT com toda a base de conhecimento técnico.</div>
+          <a class="btn-download" href="AGENTE_SUPORTE_TECNICO.docx" download>
+            ↓ Baixar Agente.docx
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUIDE PAGE -->
+    <div class="page" id="page-guide">
+      <div class="page-title">GUIA RÁPIDO</div>
+      <div class="page-subtitle">Checklist de instalação em ordem</div>
+
+      <div class="guide-section">
+        <h3>ANTES DE COMEÇAR</h3>
+        <div class="guide-step">
+          <div class="guide-step-num">1</div>
+          <div class="guide-step-content">
+            <h4>Criar conta no n8n</h4>
+            <p>Acesse <code>app.n8n.io</code> → Sign Up → confirme o email</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">2</div>
+          <div class="guide-step-content">
+            <h4>Chave API do Claude</h4>
+            <p><code>console.anthropic.com</code> → API Keys → Create Key → salve a chave <code>sk-ant-...</code> → adicione U$5 em Billing</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">3</div>
+          <div class="guide-step-content">
+            <h4>Google Cloud — APIs e OAuth</h4>
+            <p>Criar projeto → ativar YouTube Data API v3 + Gmail API + Drive API → criar chave de API → criar OAuth Client ID com redirect <code>https://app.n8n.io/rest/oauth2-credential/callback</code></p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">4</div>
+          <div class="guide-step-content">
+            <h4>Shotstack</h4>
+            <p><code>shotstack.io</code> → criar conta → copiar chave sandbox (gratuita para testes)</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">5</div>
+          <div class="guide-step-content">
+            <h4>Cloudinary</h4>
+            <p><code>cloudinary.com</code> → criar conta → copiar Cloud Name + API Key + API Secret → criar upload preset chamado <code>lacalle</code> sem assinatura</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h3>GOOGLE DRIVE</h3>
+        <div class="guide-step">
+          <div class="guide-step-num">6</div>
+          <div class="guide-step-content">
+            <h4>Estrutura de pastas</h4>
+            <p>Criar pasta <code>NOME_DO_CANAL</code> → dentro criar subpastas com data <code>DDMMAAAA</code> (ex: 17032026) → colocar MP3s dentro. Criar pasta <code>THUMBS</code> separada com imagens numeradas. Todas com permissão pública.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h3>CONFIGURAR NO N8N</h3>
+        <div class="guide-step">
+          <div class="guide-step-num">7</div>
+          <div class="guide-step-content">
+            <h4>Importar workflow</h4>
+            <p>No n8n → 3 pontinhos → Import from File → selecionar <code>workflow.json</code></p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">8</div>
+          <div class="guide-step-content">
+            <h4>Configurar credenciais</h4>
+            <p>Clicar em cada node com triângulo vermelho e conectar as credenciais criadas nas etapas anteriores</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">9</div>
+          <div class="guide-step-content">
+            <h4>Ativar Execute Once</h4>
+            <p>No node <code>LISTA MP3s</code> → aba Settings → ativar Execute Once (obrigatório)</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">10</div>
+          <div class="guide-step-content">
+            <h4>Publicar e testar</h4>
+            <p>Clicar em Publish → clicar no botão Play para testar → aguardar 10-40 minutos → verificar vídeo no YouTube Studio</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h3>TODA SEMANA</h3>
+        <div class="guide-step">
+          <div class="guide-step-num">✓</div>
+          <div class="guide-step-content">
+            <h4>Domingo/Segunda</h4>
+            <p>Criar músicas no Suno → baixar em MP3 → criar pasta com data no Drive → subir MP3s → preparar thumbnail no Cloudinary → atualizar ID da pasta no node LISTA MP3s</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">🤖</div>
+          <div class="guide-step-content">
+            <h4>Terça e Sexta às 16:15</h4>
+            <p>O workflow roda sozinho e posta o vídeo automaticamente no YouTube com título, descrição e tags gerados pela IA</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const CORRECT_PASSWORD = 'Automator';
+let API_KEY = '';
+let isLoading = false;
+const chatHistory = [];
+
+const SYSTEM_PROMPT = `Você é o Jarvis, suporte técnico especializado na automação de postagem automática no YouTube construída com n8n, Claude API, Shotstack, Cloudinary e Google Drive. Você NÃO é especialista em música ou conteúdo — você é especialista técnico em configurar, instalar e resolver problemas desta automação.
+
+ARQUITETURA DO WORKFLOW:
+Schedule Trigger (terças e sextas 16:15) → BUSCA YOUTUBE → GERA LETRAS → GERA SEO → ENVIA EMAIL → BUSCA PASTA DATA → LISTA MP3s → BAIXA MP3s → UPLOAD CLOUDINARY → MONTA TIMELINE → ENVIA SHOTSTACK → VERIFICA VÍDEO → HTTP Request (baixar MP4) → Upload a video (YouTube)
+
+ESTRUTURA GOOGLE DRIVE:
+- Pasta principal com nome do canal
+- Subpastas com data DDMMAAAA (ex: 17032026)
+- Dentro: arquivos MP3 (NUNCA WAV — WAV causa erro de memória)
+- Pasta THUMBS com thumb001.jpg, thumb002.jpg...
+- TODAS as pastas com permissão pública
+
+ERROS E SOLUÇÕES:
+1. n8n senha errada: Forgot password no app.n8n.io
+2. YouTube API não aparece para restringir: Ativar primeiro em Biblioteca do Google Cloud
+3. Claude sem créditos: console.anthropic.com → Billing → Add Credits
+4. Drive retorna vazio: Arquivos são WAV não MP3, mudar mimeType para audio/mpeg
+5. n8n out of memory: Usar MP3 nunca WAV
+6. Cloudinary unsupported file type jpeg: URL /video/upload + resource_type=video
+7. Cloudinary MP3s salvos como .jpg: usar .replace('/image/upload/','/video/upload/').replace('.jpg','.mp3')
+8. Shotstack downloading assets failed: Google Drive bloqueia. Subir tudo para Cloudinary primeiro
+9. Asset type mismatch: URL ainda /image/upload, usar replace no JavaScript
+10. JSON not valid: Montar JSON no node Code JS e usar Body Type Raw no HTTP Request
+11. YouTube Unauthorized: Adicionar escopos youtube, youtube.upload, youtube.force-ssl no Google Cloud OAuth
+12. youtubeSignupRequired: Conta OAuth sem canal. Adicionar como Gestor no YouTube Studio
+13. Vídeo canal errado: Adicionar email n8n como Gestor no YouTube Studio do canal correto
+14. Gmail/Drive API not enabled: Ativar no Google Cloud Console
+15. Invalid URL must start with http: Usar {{ $json.response?.url ?? $json.url }}
+16. Binary file not found: HTTP Request com Response Format File + Put Output in Field data
+17. Acesso bloqueado Google: Adicionar email em Usuários de Teste no OAuth Console
+18. Shotstack file not found undefined: Thumbnail no Google Drive bloqueia, subir para Cloudinary
+19. LISTA MP3s pegando 40 itens: Ativar Execute Once em Settings do node
+
+CONFIGURAÇÕES EXATAS:
+- Upload Cloudinary: URL /video/upload, body fields: file(n8n binary), upload_preset=lacalle, resource_type=video
+- LISTA MP3s: Query String, 'ID_PASTA' in parents and mimeType='audio/mpeg', Execute Once ativado
+- HTTP Request baixar vídeo: GET, URL={{ $json.response?.url ?? $json.url }}, Response Format=File, Output Field=data
+- VERIFICA VÍDEO URL: https://api.shotstack.io/stage/render/{{ $('ENVIA SHOTSTACK').item.json.response.id }}
+- Title YouTube: {{ $('GERA SEO').first().json.content[0].text.split('## TITULO:\\n')[1].split('\\n')[0].trim() }}
+
+CUSTOS: Claude ~U$1-3/mês, Shotstack U$49+/mês produção (sandbox grátis), Cloudinary grátis, Google grátis
+
+Responda em português brasileiro. Seja direto e técnico. Formate código quando necessário.`;
+
+function doLogin() {
+  const pass = document.getElementById('login-pass').value;
+  const api = document.getElementById('login-api').value.trim();
+  const err = document.getElementById('login-error');
+
+  if (pass !== CORRECT_PASSWORD) {
+    err.style.display = 'block';
+    err.textContent = 'Senha incorreta. Tente novamente.';
+    return;
+  }
+
+  if (!api.startsWith('sk-ant-')) {
+    err.style.display = 'block';
+    err.textContent = 'Chave API inválida. Deve começar com sk-ant-...';
+    return;
+  }
+
+  API_KEY = api;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+}
+
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+function addMessage(role, text) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const avatar = document.createElement('div');
+  avatar.className = `msg-avatar ${role}`;
+  avatar.textContent = role === 'bot' ? 'J' : 'V';
+  const bubble = document.createElement('div');
+  bubble.className = `msg-bubble ${role}`;
+
+  let html = text
+    .replace(/```([^`]+)```/gs, '<pre>$1</pre>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>');
+  bubble.innerHTML = html;
+
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return bubble;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg';
+  div.id = 'typing-msg';
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar bot';
+  avatar.textContent = 'J';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble bot';
+  bubble.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-msg');
+  if (t) t.remove();
+}
+
+async function sendMsg() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+  input.value = '';
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+
+  chatHistory.push({ role: 'user', content: text });
+  addMessage('user', text);
+  showTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    removeTyping();
+    const reply = data.content?.[0]?.text || 'Erro ao obter resposta.';
+    chatHistory.push({ role: 'assistant', content: reply });
+    addMessage('bot', reply);
+  } catch(e) {
+    removeTyping();
+    addMessage('bot', 'Erro de conexão. Verifique sua internet e tente novamente.');
+  }
+
+  isLoading = false;
+  document.getElementById('send-btn').disabled = false;
+}
+
+function quickAsk(text) {
+  document.getElementById('chat-input').value = text;
+  sendMsg();
+}
+</script>
+</body>
+</html>

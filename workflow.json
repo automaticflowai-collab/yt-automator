@@ -1,0 +1,529 @@
+{
+  "name": "Automação Youtube",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 16,
+              "triggerAtMinute": 15
+            },
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                2,
+                5
+              ],
+              "triggerAtHour": 16,
+              "triggerAtMinute": 15
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -368,
+        -256
+      ],
+      "id": "f3221c81-b9a1-40db-8f28-82ca242f8a23",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/search?part=snippet&q=corridos+tumbados+mix&order=viewCount&maxResults=20&type=video&key=SUA_CHAVE_YOUTUBE_API_AQUI",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -208,
+        -256
+      ],
+      "id": "2acbd470-4b68-4433-8001-aa5804f2755e",
+      "name": "🔍 BUSCA YOUTUBE"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "SUA_CHAVE_CLAUDE_AQUI"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-5\",\n  \"max_tokens\": 8096,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Você é um compositor profissional de corridos tumbados. Baseado nesses títulos virais: {{ $json.items.map(i => i.snippet.title).join(' | ') }}\\n\\nCrie 6 corridos completos para o canal NOME_DO_SEU_CANAL.\\n\\nCADA MÚSICA DEVE TER OBRIGATORIAMENTE:\\n- 3 versos longos (8 linhas cada)\\n- 1 refrão (6 linhas) repetido 3 vezes\\n- 1 ponte (4 linhas)\\n- 1 intro e 1 outro\\n- Duração mínima de 3 minutos e 30 segundos\\n\\nTemas: rua, superação, família, lealdade, ambição\\nTom: cinematográfico, emocional, introspectivo\\n\\nFormato:\\nMUSICA 1\\nTITULO:\\nLETRA:\\nPROMPT_SUNO:\\n\\nMUSICA 2\\nTITULO:\\nLETRA:\\nPROMPT_SUNO:\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        0,
+        -256
+      ],
+      "id": "28a0d35b-c2a7-44f1-9800-4946fa000fed",
+      "name": "🎵 GERA LETRAS"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "SUA_CHAVE_CLAUDE_AQUI"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-5\",\n  \"max_tokens\": 2048,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Estamos em 2026. Crie um SEO completo para um vídeo do YouTube do canal NOME_DO_SEU_CANAL de corridos tumbados.\\n\\nEntregue exatamente:\\n\\n## TITULO:\\n(título viral com emoji)\\n\\n## DESCRICAO:\\n(descrição com capítulos no formato 00:00 Música 1, 03:30 Música 2, etc até 10 músicas, mais hashtags)\\n\\n## TAGS:\\n(20 tags separadas por vírgula)\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        192,
+        -256
+      ],
+      "id": "2377a309-4f29-4f5c-85c4-8c3a07b1eed1",
+      "name": "🎵 GERA SEO"
+    },
+    {
+      "parameters": {
+        "sendTo": "SEU_EMAIL_AQUI@gmail.com",
+        "subject": "NOME_DO_SEU_CANAL - Músicas da Semana",
+        "emailType": "text",
+        "message": "={{ $json.content[0].text }}\nMÚSICAS:\n{{ $('🎵 GERA LETRAS').item.json.content[0].text }}\n\n================\n\nSEO:\n{{ $('🎵 GERA SEO').item.json.content[0].text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        -256
+      ],
+      "id": "a4030aec-18b4-4a22-8e1a-b5b2d79da3aa",
+      "name": "📧 ENVIA EMAIL",
+      "webhookId": "0a98ac67-b222-484d-9ff3-f44b701104fa",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CONFIGURAR_CREDENCIAL_GMAIL",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "'ID_DA_PASTA_PRINCIPAL_DO_CANAL' in parents",
+        "returnAll": true,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        512,
+        -256
+      ],
+      "id": "52c526fa-5a4e-4b2a-af65-d35f01e25205",
+      "name": "📁 BUSCA PASTA DATA",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CONFIGURAR_CREDENCIAL_DRIVE",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "'ID_DA_SUBPASTA_DA_DATA' in parents and mimeType='audio/mpeg'",
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        672,
+        -256
+      ],
+      "id": "ed63ea70-e680-4230-8fe4-673dc43fa5d1",
+      "name": "🎵 LISTA MP3s",
+      "executeOnce": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CONFIGURAR_CREDENCIAL_DRIVE",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}\n",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        832,
+        -256
+      ],
+      "id": "5aa7ea2a-cf67-497b-b7d0-295a070c8ae5",
+      "name": "⬇️ BAIXA MP3s",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CONFIGURAR_CREDENCIAL_DRIVE",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudinary.com/v1_1/SEU_CLOUD_NAME_AQUI/video/upload",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "upload_preset",
+              "value": "SEU_UPLOAD_PRESET_AQUI"
+            },
+            {
+              "name": "resource_type",
+              "value": "video"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -352,
+        -48
+      ],
+      "id": "0f6c923e-f164-43c1-857a-c3134578bcf4",
+      "name": "☁️ UPLOAD CLOUDINARY"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst audioClips = items.map((item, index) => {\n  return {\n    asset: {\n      type: \"audio\",\n      src: item.json.secure_url.replace('/image/upload/', '/video/upload/').replace('.jpg', '.mp3')\n    },\n    start: index * 210,\n    length: 210\n  };\n});\n\nconst thumbUrl = \"URL_DA_SUA_THUMBNAIL_NO_CLOUDINARY\";\n\nconst totalDuration = items.length * 210;\n\nconst body = JSON.stringify({\n  timeline: {\n    tracks: [\n      {\n        clips: [\n          {\n            asset: {\n              type: \"image\",\n              src: thumbUrl\n            },\n            start: 0,\n            length: totalDuration,\n            effect: \"zoomIn\"\n          }\n        ]\n      },\n      {\n        clips: audioClips\n      }\n    ]\n  },\n  output: {\n    format: \"mp4\",\n    resolution: \"hd\"\n  }\n});\n\nreturn [{ json: { body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -208,
+        -48
+      ],
+      "id": "3463b56f-8285-47c8-baa6-41f62eca9fcf",
+      "name": "🎬 MONTA TIMELINE"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.shotstack.io/stage/render",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "SUA_CHAVE_SHOTSTACK_AQUI"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -32,
+        -48
+      ],
+      "id": "4f396765-1fa8-4939-8df3-df653a05faa4",
+      "name": "🎬 ENVIA SHOTSTACK"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.shotstack.io/stage/render/{{ $('🎬 ENVIA SHOTSTACK').item.json.response.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "SUA_CHAVE_SHOTSTACK_AQUI"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        160,
+        -48
+      ],
+      "id": "cad26135-dce5-4ed8-b11e-2f3fe2841421",
+      "name": "✅ VERIFICA VÍDEO",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "={{ $('🎵 GERA SEO').first().json.content[0].text.split('## TITULO:\\n')[1].split('\\n')[0].trim() }}\n",
+        "regionCode": "BR",
+        "categoryId": "10",
+        "options": {
+          "description": "={{ $('🎵 GERA SEO').first().json.content[0].text.split('## DESCRICAO:\\n')[1].split('## TAGS:')[0].trim() }}\n",
+          "notifySubscribers": true,
+          "privacyStatus": "public",
+          "publicStatsViewable": true,
+          "tags": "={{ $('🎵 GERA SEO').first().json.content[0].text.split('## TAGS:\\n')[1].trim().split(',').map(t => t.trim()) }}\n"
+        }
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -48
+      ],
+      "id": "d5982a70-059b-4fbf-ab06-cf68f522d5f0",
+      "name": "Upload a video",
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "CONFIGURAR_CREDENCIAL_YOUTUBE",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.response?.url ?? $json.url }}\n",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        320,
+        -48
+      ],
+      "id": "22940fb3-c477-4ab6-991d-b50c666ad3c7",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "🔍 BUSCA YOUTUBE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 BUSCA YOUTUBE": {
+      "main": [
+        [
+          {
+            "node": "🎵 GERA LETRAS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎵 GERA LETRAS": {
+      "main": [
+        [
+          {
+            "node": "🎵 GERA SEO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎵 GERA SEO": {
+      "main": [
+        [
+          {
+            "node": "📧 ENVIA EMAIL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📧 ENVIA EMAIL": {
+      "main": [
+        [
+          {
+            "node": "📁 BUSCA PASTA DATA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📁 BUSCA PASTA DATA": {
+      "main": [
+        [
+          {
+            "node": "🎵 LISTA MP3s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎵 LISTA MP3s": {
+      "main": [
+        [
+          {
+            "node": "⬇️ BAIXA MP3s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⬇️ BAIXA MP3s": {
+      "main": [
+        [
+          {
+            "node": "☁️ UPLOAD CLOUDINARY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "☁️ UPLOAD CLOUDINARY": {
+      "main": [
+        [
+          {
+            "node": "🎬 MONTA TIMELINE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎬 MONTA TIMELINE": {
+      "main": [
+        [
+          {
+            "node": "🎬 ENVIA SHOTSTACK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎬 ENVIA SHOTSTACK": {
+      "main": [
+        [
+          {
+            "node": "✅ VERIFICA VÍDEO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✅ VERIFICA VÍDEO": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Upload a video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "58b0c36a-5ab1-4dc4-8116-fface5ad0ca7",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "INSTANCIA_DO_COMPRADOR"
+  },
+  "id": "o3NcqXKmsrPVzOCg",
+  "tags": []
+}
