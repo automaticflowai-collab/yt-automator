@@ -658,6 +658,12 @@
     flex-shrink: 0;
   }
 
+
+  .guide-step { cursor:pointer; transition: opacity 0.2s; }
+  .guide-step.done { opacity:0.45; }
+  .guide-step.done .guide-step-num { background: #333 !important; }
+  .guide-step-check { margin-left:auto; width:20px; height:20px; border:1px solid var(--border); border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; }
+  .guide-step.done .guide-step-check { background:var(--red); border-color:var(--red); }
   .guide-step-content h4 {
     font-size: 13px;
     font-weight: 500;
@@ -751,12 +757,21 @@
         <span class="nav-icon">📋</span>
         <span>Guia Rápido</span>
       </div>
+      <div class="nav-item" onclick="showPage('updates', this)">
+        <span class="nav-icon">🔔</span>
+        <span>Atualizações</span>
+      </div>
+      <div class="nav-item" onclick="showPage('settings', this)">
+        <span class="nav-icon">⚙️</span>
+        <span>Configurações</span>
+      </div>
     </nav>
     <div class="sidebar-footer">
       <div class="api-status">
         <div class="api-dot"></div>
         <span>Claude conectado</span>
       </div>
+      <button onclick="doLogout()" style="margin-top:12px;width:100%;background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:8px;color:var(--text-muted);font-family:var(--font-body);font-size:12px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;" onmouseover="this.style.borderColor='rgba(255,0,0,0.3)';this.style.color='#ff6666'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.color='var(--text-muted)'">⏻ Sair</button>
     </div>
   </div>
 
@@ -771,6 +786,7 @@
           <h2>Jarvis — Suporte Técnico</h2>
           <p>Especialista em n8n · APIs · Configuração · Erros</p>
         </div>
+        <button onclick="clearChat()" style="margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:7px 14px;color:var(--text-muted);font-family:var(--font-body);font-size:12px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='rgba(255,0,0,0.3)';this.style.color='#ff6666'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.color='var(--text-muted)'">🗑 Limpar</button>
       </div>
       <div id="chat-messages">
         <div class="msg">
@@ -925,6 +941,50 @@
       </div>
     </div>
 
+    <!-- UPDATES PAGE -->
+    <div class="page" id="page-updates">
+      <div class="page-title">ATUALIZAÇÕES</div>
+      <div class="page-subtitle">Histórico de versões e novidades do produto</div>
+      <div style="max-width:680px;">
+        <div class="guide-step" style="border-left:3px solid var(--red);background:var(--surface2);">
+          <div class="guide-step-num" style="background:var(--red);">★</div>
+          <div class="guide-step-content">
+            <h4>v1.0 — Lançamento <span style="font-size:11px;color:var(--text-muted);font-weight:400;margin-left:8px;">17/03/2026</span></h4>
+            <p>Versão inicial com workflow completo: busca YouTube → Claude → SEO → Drive → Cloudinary → Shotstack → YouTube. Jarvis de suporte técnico incluído.</p>
+          </div>
+        </div>
+        <div style="margin-top:24px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text-muted);">
+          🔔 Quando houver uma nova versão do workflow, você receberá instruções aqui para atualizar.
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div class="page" id="page-settings">
+      <div class="page-title">CONFIGURAÇÕES</div>
+      <div class="page-subtitle">Gerencie sua sessão e chave API</div>
+      <div style="max-width:480px;display:flex;flex-direction:column;gap:16px;">
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:24px;">
+          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px;">Chave API Claude</div>
+          <div style="position:relative;">
+            <input type="password" id="settings-api" placeholder="sk-ant-..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 40px 10px 14px;color:var(--text);font-family:var(--font-body);font-size:13px;outline:none;" />
+            <button type="button" onclick="toggleVis('settings-api',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;">👁</button>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:8px;">Crie em console.anthropic.com · ~U$1-2/mês</div>
+          <button onclick="updateApiKey()" style="margin-top:14px;width:100%;background:var(--red);color:white;border:none;border-radius:4px;padding:10px;font-family:var(--font-body);font-size:13px;cursor:pointer;font-weight:500;">Salvar nova chave</button>
+          <div id="settings-msg" style="display:none;margin-top:10px;font-size:12px;color:#00C853;"></div>
+        </div>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:24px;">
+          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px;">Sessão</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Versão do produto: <span style="color:var(--text);">v1.0</span></div>
+          <button onclick="doLogout()" style="width:100%;background:transparent;border:1px solid rgba(255,0,0,0.3);border-radius:4px;padding:10px;color:#ff6666;font-family:var(--font-body);font-size:13px;cursor:pointer;">⏻ Encerrar sessão</button>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1008,8 +1068,53 @@ function doLogin() {
   document.getElementById('app').style.display = 'flex';
 }
 
+function clearChat() {
+  chatHistory.length = 0;
+  sessionStorage.removeItem('yt_chat');
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '';
+  addMessage('bot', 'Conversa reiniciada. Como posso ajudar?');
+}
+
+function updateApiKey() {
+  const newKey = document.getElementById('settings-api').value.trim();
+  const msg = document.getElementById('settings-msg');
+  if (!newKey.startsWith('sk-ant-')) {
+    msg.style.color = '#ff6666';
+    msg.textContent = 'Chave inválida. Deve começar com sk-ant-...';
+    msg.style.display = 'block';
+    return;
+  }
+  API_KEY = newKey;
+  sessionStorage.setItem('yt_api', newKey);
+  msg.style.color = '#00C853';
+  msg.textContent = '✓ Chave atualizada com sucesso!';
+  msg.style.display = 'block';
+  setTimeout(() => { msg.style.display = 'none'; }, 3000);
+}
+
+function doLogout() {
+  sessionStorage.removeItem('yt_auth');
+  sessionStorage.removeItem('yt_api');
+  sessionStorage.removeItem('yt_chat');
+  API_KEY = '';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-api').value = '';
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   if (sessionStorage.getItem('yt_auth') === '1') {
+    const savedHistory = sessionStorage.getItem('yt_chat');
+    if (savedHistory) {
+      try {
+        const parsed = JSON.parse(savedHistory);
+        parsed.forEach(m => { chatHistory.push(m); addMessage(m.role === 'user' ? 'user' : 'bot', m.content); });
+        const msgs = document.getElementById('chat-messages');
+        msgs.scrollTop = msgs.scrollHeight;
+      } catch(e) {}
+    }
     API_KEY = sessionStorage.getItem('yt_api') || '';
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
@@ -1077,6 +1182,7 @@ async function sendMsg() {
   document.getElementById('send-btn').disabled = true;
 
   chatHistory.push({ role: 'user', content: text });
+  try { sessionStorage.setItem('yt_chat', JSON.stringify(chatHistory)); } catch(e) {}
   addMessage('user', text);
   showTyping();
 
@@ -1095,6 +1201,7 @@ async function sendMsg() {
     removeTyping();
     const reply = data.content?.[0]?.text || 'Erro ao obter resposta.';
     chatHistory.push({ role: 'assistant', content: reply });
+    try { sessionStorage.setItem('yt_chat', JSON.stringify(chatHistory)); } catch(e) {}
     addMessage('bot', reply);
   } catch(e) {
     removeTyping();
