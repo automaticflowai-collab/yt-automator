@@ -3,716 +3,186 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YT Automator — Suporte Técnico</title>
+<title>YT Automator — Painel</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --red: #FF0000;
-    --red-dark: #CC0000;
-    --red-glow: rgba(255,0,0,0.15);
-    --black: #0A0A0A;
-    --surface: #141414;
-    --surface2: #1E1E1E;
-    --surface3: #282828;
-    --border: rgba(255,255,255,0.08);
-    --border-red: rgba(255,0,0,0.3);
-    --text: #FFFFFF;
-    --text-muted: #888888;
-    --text-dim: #555555;
-    --font-display: 'Bebas Neue', sans-serif;
-    --font-body: 'Inter', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: var(--font-body);
-    background: var(--black);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ─── GRID BACKGROUND ─── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(255,0,0,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,0,0,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ─── LOGIN SCREEN ─── */
-  #login-screen {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    background: var(--black);
-    padding: 24px;
-  }
-
-  .login-box {
-    width: 100%;
-    max-width: 420px;
-    background: var(--surface);
-    border: 1px solid var(--border-red);
-    border-radius: 4px;
-    padding: 48px 40px;
-    position: relative;
-    box-shadow: 0 0 60px rgba(255,0,0,0.08);
-  }
-
-  .login-box::before {
-    content: '';
-    position: absolute;
-    top: -1px; left: 0; right: 0;
-    height: 2px;
-    background: var(--red);
-  }
-
-  .login-logo {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-
-  .login-logo .yt-icon {
-    width: 48px;
-    height: 48px;
-    background: var(--red);
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
-  }
-
-  .login-logo .yt-icon::after {
-    content: '';
-    border-left: 18px solid white;
-    border-top: 11px solid transparent;
-    border-bottom: 11px solid transparent;
-    margin-left: 4px;
-  }
-
-  .login-logo h1 {
-    font-family: var(--font-display);
-    font-size: 32px;
-    letter-spacing: 3px;
-    color: var(--text);
-  }
-
-  .login-logo p {
-    font-size: 12px;
-    color: var(--text-muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
-
-  .form-group {
-    margin-bottom: 16px;
-    position: relative;
-  }
-
-  .form-group label {
-    display: block;
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-  }
-
-  .form-group input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 12px 16px;
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .form-group input:focus {
-    border-color: var(--red);
-  }
-
-  .form-group input::placeholder {
-    color: var(--text-dim);
-  }
-
-  .form-group .hint {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 6px;
-    line-height: 1.5;
-  }
-
-  .btn-login {
-    width: 100%;
-    background: var(--red);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 14px;
-    font-family: var(--font-display);
-    font-size: 18px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: background 0.2s, transform 0.1s;
-  }
-
-  .btn-login:hover { background: var(--red-dark); }
-  .btn-login:active { transform: scale(0.99); }
-
-  .login-error {
-    background: rgba(255,0,0,0.1);
-    border: 1px solid var(--border-red);
-    border-radius: 4px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: #ff6666;
-    margin-top: 12px;
-    display: none;
-  }
-
-  /* ─── MAIN APP ─── */
-  #app {
-    display: none;
-    min-height: 100vh;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* ─── SIDEBAR ─── */
-  #sidebar {
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 240px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    z-index: 10;
-  }
-
-  .sidebar-logo {
-    padding: 24px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .sidebar-logo .icon {
-    width: 36px;
-    height: 36px;
-    background: var(--red);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .sidebar-logo .icon::after {
-    content: '';
-    border-left: 13px solid white;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    margin-left: 3px;
-  }
-
-  .sidebar-logo span {
-    font-family: var(--font-display);
-    font-size: 20px;
-    letter-spacing: 2px;
-  }
-
-  .sidebar-nav {
-    padding: 16px 12px;
-    flex: 1;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--text-muted);
-    transition: all 0.15s;
-    margin-bottom: 2px;
-    border: 1px solid transparent;
-  }
-
-  .nav-item:hover { background: var(--surface2); color: var(--text); }
-
-  .nav-item.active {
-    background: var(--red-glow);
-    color: var(--text);
-    border-color: var(--border-red);
-  }
-
-  .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-
-  .sidebar-footer {
-    padding: 16px 20px;
-    border-top: 1px solid var(--border);
-  }
-
-  .api-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-
-  .api-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #3B6D11;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  /* ─── MAIN CONTENT ─── */
-  #main {
-    margin-left: 240px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* ─── PAGES ─── */
-  .page { display: none; flex: 1; }
-  .page.active { display: flex; flex-direction: column; }
-
-  /* ─── JARVIS PAGE ─── */
-  #page-jarvis {
-    height: 100vh;
-  }
-
-  .chat-header {
-    padding: 16px 28px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--surface);
-  }
-
-  .chat-header-avatar {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--red) 0%, #800000 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display);
-    font-size: 18px;
-    letter-spacing: 1px;
-  }
-
-  .chat-header-info h2 {
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  .chat-header-info p {
-    font-size: 11px;
-    color: var(--text-muted);
-  }
-
-  #chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--surface3) transparent;
-  }
-
-  .msg { display: flex; gap: 12px; align-items: flex-start; animation: fadeIn 0.2s ease; }
-  .msg.user { flex-direction: row-reverse; }
-
-  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-
-  .msg-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    flex-shrink: 0;
-    font-family: var(--font-display);
-    letter-spacing: 1px;
-  }
-
-  .msg-avatar.bot { background: linear-gradient(135deg, var(--red) 0%, #800000 100%); }
-  .msg-avatar.user { background: var(--surface3); color: var(--text-muted); font-family: var(--font-body); }
-
-  .msg-bubble {
-    max-width: 75%;
-    padding: 12px 16px;
-    font-size: 13.5px;
-    line-height: 1.65;
-    border-radius: 2px;
-  }
-
-  .msg-bubble.bot {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-top-left-radius: 0;
-  }
-
-  .msg-bubble.user {
-    background: var(--red-glow);
-    border: 1px solid var(--border-red);
-    border-top-right-radius: 0;
-    color: #ffcccc;
-  }
-
-  .msg-bubble code {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    background: rgba(255,255,255,0.06);
-    padding: 2px 6px;
-    border-radius: 2px;
-    color: #ff9999;
-  }
-
-  .msg-bubble pre {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    background: rgba(0,0,0,0.4);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--red);
-    padding: 12px;
-    border-radius: 2px;
-    overflow-x: auto;
-    margin-top: 8px;
-    line-height: 1.5;
-    color: #ffaaaa;
-  }
-
-  .typing-indicator {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    padding: 14px 16px;
-  }
-
-  .typing-indicator span {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--text-dim);
-    animation: bounce 1.2s infinite;
-  }
-
-  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-
-  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
-
-  .quick-questions {
-    padding: 12px 28px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    border-top: 1px solid var(--border);
-    background: var(--surface);
-  }
-
-  .quick-btn {
-    font-size: 11.5px;
-    padding: 6px 12px;
-    border-radius: 2px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-family: var(--font-body);
-    transition: all 0.15s;
-  }
-
-  .quick-btn:hover {
-    border-color: var(--border-red);
-    color: var(--text);
-    background: var(--red-glow);
-  }
-
-  .chat-input-area {
-    padding: 16px 28px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 10px;
-    background: var(--surface);
-  }
-
-  #chat-input {
-    flex: 1;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 12px 16px;
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 13.5px;
-    outline: none;
-    transition: border-color 0.2s;
-    resize: none;
-    height: 44px;
-  }
-
-  #chat-input:focus { border-color: var(--border-red); }
-  #chat-input::placeholder { color: var(--text-dim); }
-
-  .btn-send {
-    width: 44px;
-    height: 44px;
-    background: var(--red);
-    border: none;
-    border-radius: 2px;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    transition: background 0.2s;
-    flex-shrink: 0;
-  }
-
-  .btn-send:hover { background: var(--red-dark); }
-  .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  /* ─── DOWNLOADS PAGE ─── */
-  #page-downloads {
-    padding: 40px 40px;
-  }
-
-  .page-title {
-    font-family: var(--font-display);
-    font-size: 36px;
-    letter-spacing: 3px;
-    margin-bottom: 8px;
-  }
-
-  .page-subtitle {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 40px;
-  }
-
-  .downloads-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
-    max-width: 900px;
-  }
-
-  .download-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 24px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-
-  .download-card:hover { border-color: var(--border-red); }
-
-  .download-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--red);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .download-card:hover::before { opacity: 1; }
-
-  .card-icon {
-    font-size: 32px;
-    margin-bottom: 16px;
-  }
-
-  .card-title {
-    font-size: 15px;
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
-
-  .card-desc {
-    font-size: 12.5px;
-    color: var(--text-muted);
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
-
-  .card-tag {
-    display: inline-block;
-    font-size: 10px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 2px;
-    background: var(--red-glow);
-    border: 1px solid var(--border-red);
-    color: #ff9999;
-    margin-bottom: 16px;
-  }
-
-  .btn-download {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 10px 16px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-decoration: none;
-    justify-content: center;
-  }
-
-  .btn-download:hover {
-    background: var(--red-glow);
-    border-color: var(--border-red);
-    color: white;
-  }
-
-  /* ─── GUIDE PAGE ─── */
-  #page-guide {
-    padding: 40px;
-    overflow-y: auto;
-    max-height: 100vh;
-  }
-
-  .guide-section {
-    max-width: 720px;
-    margin-bottom: 40px;
-  }
-
-  .guide-section h3 {
-    font-family: var(--font-display);
-    font-size: 22px;
-    letter-spacing: 2px;
-    margin-bottom: 16px;
-    color: var(--red);
-  }
-
-  .guide-step {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 16px;
-    padding: 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-  }
-
-  .guide-step-num {
-    width: 28px;
-    height: 28px;
-    background: var(--red);
-    border-radius: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display);
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-
-
-  .guide-step { cursor:pointer; transition: opacity 0.2s; }
-  .guide-step.done { opacity:0.45; }
-  .guide-step.done .guide-step-num { background: #333 !important; }
-  .guide-step-check { margin-left:auto; width:20px; height:20px; border:1px solid var(--border); border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; }
-  .guide-step.done .guide-step-check { background:var(--red); border-color:var(--red); }
-  .guide-step-content h4 {
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 4px;
-  }
-
-  .guide-step-content p {
-    font-size: 12.5px;
-    color: var(--text-muted);
-    line-height: 1.6;
-  }
-
-  .guide-step-content code {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    background: rgba(255,255,255,0.05);
-    padding: 1px 5px;
-    border-radius: 2px;
-    color: #ff9999;
-  }
-
-  /* ─── SCROLLBAR ─── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
-
-  /* ─── MOBILE ─── */
-  @media (max-width: 768px) {
-    #sidebar { width: 180px; }
-    .sidebar-logo { padding: 16px 14px; }
-    .sidebar-logo span { font-size: 15px; }
-    #main { margin-left: 180px; }
-    .chat-input-area, .quick-questions { padding: 10px 14px; }
-    #chat-messages { padding: 14px; }
-    #page-downloads, #page-guide { padding: 20px 14px; }
-    .msg-bubble { max-width: 90%; }
-  }
-
-  @media (max-width: 480px) {
-    #sidebar { width: 140px; }
-    #main { margin-left: 140px; }
-    .sidebar-logo span { font-size: 13px; }
-    .nav-item { font-size: 12px; padding: 9px 10px; }
-  }
+:root {
+  --red:#FF0000;--red-dark:#CC0000;--red-glow:rgba(255,0,0,0.15);
+  --black:#0A0A0A;--surface:#141414;--surface2:#1E1E1E;--surface3:#282828;
+  --border:rgba(255,255,255,0.08);--border-red:rgba(255,0,0,0.3);
+  --text:#FFFFFF;--text-muted:#888888;--text-dim:#444444;--green:#00C853;
+  --font-display:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--black);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,0,0,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,0,0,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+#login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:100;background:var(--black);padding:24px}
+.login-box{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border-red);border-radius:4px;padding:44px 38px;position:relative;box-shadow:0 0 60px rgba(255,0,0,0.08)}
+.login-box::before{content:'';position:absolute;top:-1px;left:0;right:0;height:2px;background:var(--red)}
+.login-logo{text-align:center;margin-bottom:32px}
+.yt-icon{width:44px;height:44px;background:var(--red);border-radius:11px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px}
+.yt-icon::after{content:'';border-left:16px solid white;border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:3px}
+.login-logo h1{font-family:var(--font-display);font-size:26px;letter-spacing:3px}
+.login-logo p{font-size:11px;color:var(--text-muted);margin-top:3px}
+.fg{margin-bottom:13px;position:relative}
+.fg label{display:block;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+.fg input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 38px 10px 13px;color:var(--text);font-family:var(--font-body);font-size:13px;outline:none;transition:border-color 0.2s}
+.fg input:focus{border-color:var(--red)}
+.fg input::placeholder{color:var(--text-dim)}
+.fg .hint{font-size:11px;color:var(--text-dim);margin-top:5px;line-height:1.5}
+.eye-btn{position:absolute;right:10px;top:32px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;padding:3px}
+.btn-login{width:100%;background:var(--red);color:white;border:none;border-radius:4px;padding:13px;font-family:var(--font-display);font-size:17px;letter-spacing:2px;cursor:pointer;margin-top:4px;transition:background 0.2s}
+.btn-login:hover{background:var(--red-dark)}
+.login-error{background:rgba(255,0,0,0.1);border:1px solid var(--border-red);border-radius:4px;padding:8px 13px;font-size:12px;color:#ff6666;margin-top:9px;display:none}
+.cache-warn{background:rgba(255,180,0,0.07);border:1px solid rgba(255,180,0,0.2);border-radius:4px;padding:10px 13px;font-size:11px;color:#ffb400;margin-top:12px;line-height:1.6;display:flex;gap:8px;align-items:flex-start}
+.cache-warn::before{content:'⚠️';font-size:13px;flex-shrink:0;margin-top:1px}
+
+#app{display:none;min-height:100vh;position:relative;z-index:1}
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:10}
+#main{margin-left:220px;min-height:100vh;display:flex;flex-direction:column}
+
+.sb-logo{padding:16px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.sb-logo .icon{width:30px;height:30px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo .icon::after{content:'';border-left:10px solid white;border-top:6px solid transparent;border-bottom:6px solid transparent;margin-left:2px}
+.sb-logo span{font-family:var(--font-display);font-size:16px;letter-spacing:2px}
+.sb-label{padding:14px 14px 5px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 10px;margin:1px 7px;border-radius:4px;cursor:pointer;font-size:12.5px;color:var(--text-muted);transition:all 0.15s;border:1px solid transparent}
+.ni:hover{background:var(--surface2);color:var(--text)}
+.ni.active{background:var(--red-glow);color:var(--text);border-color:var(--border-red)}
+.ni .ic{font-size:14px;width:17px;text-align:center;flex-shrink:0}
+.sb-div{height:1px;background:var(--border);margin:8px 0}
+.ch-area{flex:1;overflow-y:auto;padding-bottom:6px}
+.ch-ni{display:flex;align-items:center;gap:8px;padding:7px 10px;margin:1px 7px;border-radius:4px;cursor:pointer;transition:all 0.15s;border:1px solid transparent}
+.ch-ni:hover{background:var(--surface2)}
+.ch-ni.active{background:var(--red-glow);border-color:var(--border-red)}
+.ch-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.ch-in{flex:1;min-width:0}
+.ch-nm{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.ch-sb{font-size:10px;color:var(--text-muted);margin-top:1px}
+.ch-dt{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.add-ch{display:flex;align-items:center;gap:7px;padding:7px 10px;margin:2px 7px;border-radius:4px;cursor:pointer;font-size:11px;color:var(--text-dim);transition:all 0.15s;border:1px dashed rgba(255,255,255,0.07)}
+.add-ch:hover{border-color:var(--border-red);color:#ff6666}
+.sb-ft{padding:10px 7px;border-top:1px solid var(--border)}
+.api-st{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-dim);padding:0 5px;margin-bottom:7px}
+.api-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.logout-btn{width:100%;background:transparent;border:1px solid rgba(255,255,255,0.06);border-radius:4px;padding:7px;color:var(--text-muted);font-family:var(--font-body);font-size:11px;cursor:pointer;transition:all 0.15s;letter-spacing:1px}
+.logout-btn:hover{border-color:var(--border-red);color:#ff6666}
+
+.page{display:none;flex:1;flex-direction:column}
+.page.active{display:flex}
+.pi{padding:32px 36px;overflow-y:auto;max-height:100vh}
+.pt{font-family:var(--font-display);font-size:30px;letter-spacing:3px;margin-bottom:5px}
+.ps{font-size:12px;color:var(--text-muted);margin-bottom:28px}
+
+#page-jarvis{height:100vh}
+.ch-hd{padding:13px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;background:var(--surface)}
+.ch-hd-av{width:32px;height:32px;background:linear-gradient(135deg,var(--red) 0%,#800000 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:16px;flex-shrink:0}
+.ch-hd-info h2{font-size:13px;font-weight:500}
+.ch-hd-info p{font-size:10px;color:var(--text-muted)}
+.clr-btn{margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:4px;padding:5px 11px;color:var(--text-muted);font-family:var(--font-body);font-size:11px;cursor:pointer;transition:all 0.15s}
+.clr-btn:hover{border-color:var(--border-red);color:#ff6666}
+#chat-messages{flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--surface3) transparent}
+.msg{display:flex;gap:9px;align-items:flex-start;animation:fi 0.2s ease}
+.msg.user{flex-direction:row-reverse}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.ma{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;font-family:var(--font-display);letter-spacing:1px}
+.ma.bot{background:linear-gradient(135deg,var(--red) 0%,#800000 100%)}
+.ma.user{background:var(--surface3);color:var(--text-muted);font-family:var(--font-body)}
+.mb{max-width:78%;padding:9px 13px;font-size:12.5px;line-height:1.65;border-radius:2px}
+.mb.bot{background:var(--surface2);border:1px solid var(--border);border-top-left-radius:0}
+.mb.user{background:var(--red-glow);border:1px solid var(--border-red);border-top-right-radius:0;color:#ffcccc}
+.mb code{font-family:var(--font-mono);font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:2px;color:#ff9999}
+.mb pre{font-family:var(--font-mono);font-size:11px;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-left:3px solid var(--red);padding:9px;border-radius:2px;overflow-x:auto;margin-top:6px;line-height:1.5;color:#ffaaaa}
+.typing-ind{display:flex;gap:4px;align-items:center;padding:9px 13px}
+.typing-ind span{width:5px;height:5px;border-radius:50%;background:var(--text-dim);animation:bounce 1.2s infinite}
+.typing-ind span:nth-child(2){animation-delay:0.2s}
+.typing-ind span:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.qq{padding:9px 22px;display:flex;gap:5px;flex-wrap:wrap;border-top:1px solid var(--border);background:var(--surface)}
+.qb{font-size:10.5px;padding:4px 9px;border-radius:2px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;font-family:var(--font-body);transition:all 0.15s}
+.qb:hover{border-color:var(--border-red);color:var(--text);background:var(--red-glow)}
+.ci-area{padding:11px 22px;border-top:1px solid var(--border);display:flex;gap:7px;background:var(--surface)}
+#chat-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:9px 13px;color:var(--text);font-family:var(--font-body);font-size:12.5px;resize:none;height:38px;outline:none;transition:border-color 0.2s}
+#chat-input:focus{border-color:var(--border-red)}
+#chat-input::placeholder{color:var(--text-dim)}
+.bs{width:38px;height:38px;border-radius:2px;border:none;background:var(--red);color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:background 0.2s}
+.bs:hover{background:var(--red-dark)}
+.bs:disabled{opacity:0.4;cursor:not-allowed}
+
+.dg{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:13px;max-width:760px}
+.dc{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:22px;position:relative;overflow:hidden;transition:border-color 0.2s}
+.dc:hover{border-color:var(--border-red)}
+.dc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--red);opacity:0;transition:opacity 0.2s}
+.dc:hover::before{opacity:1}
+.dc-icon{font-size:26px;margin-bottom:10px}
+.dc-tag{display:inline-block;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:2px;background:var(--red-glow);border:1px solid var(--border-red);color:#ff9999;margin-bottom:8px}
+.dc-title{font-size:13px;font-weight:600;margin-bottom:5px}
+.dc-desc{font-size:11.5px;color:var(--text-muted);line-height:1.6;margin-bottom:14px}
+.btn-dl{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px;background:transparent;border:1px solid var(--border);border-radius:2px;color:var(--text);font-family:var(--font-body);font-size:11.5px;cursor:pointer;transition:all 0.15s;text-decoration:none}
+.btn-dl:hover{background:var(--red-glow);border-color:var(--border-red)}
+
+.gs{max-width:660px;margin-bottom:28px}
+.gs h3{font-family:var(--font-display);font-size:18px;letter-spacing:2px;margin-bottom:12px;color:var(--red)}
+.gst{display:flex;gap:12px;margin-bottom:10px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:4px;cursor:pointer;transition:opacity 0.2s;align-items:flex-start}
+.gst.done{opacity:0.4}
+.gst-num{width:26px;height:26px;background:var(--red);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;flex-shrink:0;margin-top:1px}
+.gst.done .gst-num{background:var(--surface3)}
+.gst-content h4{font-size:12.5px;font-weight:500;margin-bottom:2px}
+.gst-content p{font-size:11.5px;color:var(--text-muted);line-height:1.6}
+.gst-content code{font-family:var(--font-mono);font-size:10.5px;background:rgba(255,255,255,0.05);padding:1px 4px;border-radius:2px;color:#ff9999}
+.gst-ck{margin-left:auto;width:17px;height:17px;border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:4px}
+.gst.done .gst-ck{background:var(--red);border-color:var(--red)}
+
+.ch-pg-hd{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:var(--surface);flex-wrap:wrap}
+.ch-big-av{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.ch-pg-info h2{font-size:16px;font-weight:600;margin-bottom:1px}
+.ch-pg-info p{font-size:11px;color:var(--text-muted)}
+.st-badge{margin-left:auto;display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:1px;cursor:pointer;border:none;font-family:var(--font-body)}
+.ch-fields{padding:22px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px;max-width:920px;overflow-y:auto;max-height:calc(100vh - 200px)}
+.fc{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px}
+.fc-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}
+.fg2{margin-bottom:10px}
+.fg2:last-child{margin-bottom:0}
+.fg2 label{display:block;font-size:10px;color:var(--text-muted);margin-bottom:4px}
+.fg2 input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:7px 10px;color:var(--text);font-family:var(--font-mono);font-size:11.5px;outline:none;transition:border-color 0.2s}
+.fg2 input:focus{border-color:var(--border-red)}
+.fg2 input::placeholder{color:var(--text-dim);font-family:var(--font-body)}
+.save-btn{margin:0 28px 24px;padding:11px 28px;background:var(--red);color:white;border:none;border-radius:4px;font-family:var(--font-display);font-size:16px;letter-spacing:2px;cursor:pointer;transition:background 0.2s}
+.save-btn:hover{background:var(--red-dark)}
+.save-msg{display:inline-block;margin-left:10px;font-size:12px;color:var(--green);opacity:0;transition:opacity 0.3s}
+
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px;max-width:440px;margin-bottom:13px}
+.sc-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}
+
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-ov.open{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border-red);border-radius:4px;padding:28px;width:100%;max-width:380px;position:relative}
+.modal-box::before{content:'';position:absolute;top:-1px;left:0;right:0;height:2px;background:var(--red)}
+.modal-title{font-family:var(--font-display);font-size:20px;letter-spacing:2px;margin-bottom:18px}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;line-height:1}
+.cp{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap}
+.cs{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color 0.15s}
+.cs.sel{border-color:white}
+.btn-cr{width:100%;background:var(--red);color:white;border:none;border-radius:4px;padding:11px;font-family:var(--font-display);font-size:16px;letter-spacing:2px;cursor:pointer;margin-top:6px}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+
+@media(max-width:680px){
+  #sidebar{width:52px}
+  .sb-logo span,.ni span,.ch-in,.ch-dt,.api-st span,.add-ch span,.sb-label{display:none}
+  .sb-logo{padding:12px;justify-content:center}
+  .ni,.ch-ni{justify-content:center;padding:9px}
+  .ch-av{margin:0 auto}
+  #main{margin-left:52px}
+}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">
@@ -720,268 +190,212 @@
       <h1>YT AUTOMATOR</h1>
       <p>Suporte Técnico · Powered by AI</p>
     </div>
-    <div class="form-group">
+    <div class="fg">
       <label>Senha de acesso</label>
-      <input type="password" id="login-pass" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')doLogin()" />
-      <button type="button" onclick="toggleVis('login-pass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;padding:4px;">👁</button>
+      <input type="password" id="lp" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')doLogin()"/>
+      <button type="button" class="eye-btn" onclick="tv('lp',this)">👁</button>
     </div>
-    <div class="form-group">
+    <div class="fg">
       <label>Sua chave API Claude</label>
-      <input type="password" id="login-api" placeholder="sk-ant-..." onkeydown="if(event.key==='Enter')doLogin()" />
-      <button type="button" onclick="toggleVis('login-api',this)" style="position:absolute;right:12px;top:38px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;padding:4px;">👁</button>
-      <div class="hint">Crie em console.anthropic.com · Custo: ~U$1-2/mês para uso normal</div>
+      <input type="password" id="la" placeholder="sk-ant-..." onkeydown="if(event.key==='Enter')doLogin()"/>
+      <button type="button" class="eye-btn" onclick="tv('la',this)">👁</button>
+      <div class="hint">Crie em console.anthropic.com · ~U$1-2/mês · Chave salva no navegador</div>
     </div>
     <button class="btn-login" onclick="doLogin()">ENTRAR</button>
-    <div class="login-error" id="login-error">Senha incorreta. Tente novamente.</div>
+    <div class="login-error" id="lerr"></div>
+    <div class="cache-warn">
+      <span>Seus dados de canais ficam salvos neste navegador (localStorage). <strong>Se você limpar o cache ou os dados do navegador, todas as configurações dos canais serão perdidas permanentemente.</strong> Guarde suas informações em local seguro.</span>
+    </div>
   </div>
 </div>
 
-<!-- APP -->
+<div class="modal-ov" id="modal-add">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">NOVO CANAL</div>
+    <div class="fg">
+      <label>Nome do canal</label>
+      <input type="text" id="nc-name" placeholder="Ex: LACALLE, Lyra Soul..."/>
+    </div>
+    <div class="fg">
+      <label>Nicho / Gênero</label>
+      <input type="text" id="nc-niche" placeholder="Ex: Corridos, Lofi, Gospel..."/>
+    </div>
+    <div class="fg">
+      <label>Cor do avatar</label>
+      <div class="cp" id="cp">
+        <div class="cs sel" style="background:#FF0000" data-c="#FF0000" onclick="sc(this)"></div>
+        <div class="cs" style="background:#1565C0" data-c="#1565C0" onclick="sc(this)"></div>
+        <div class="cs" style="background:#2E7D32" data-c="#2E7D32" onclick="sc(this)"></div>
+        <div class="cs" style="background:#6A1B9A" data-c="#6A1B9A" onclick="sc(this)"></div>
+        <div class="cs" style="background:#E65100" data-c="#E65100" onclick="sc(this)"></div>
+        <div class="cs" style="background:#00695C" data-c="#00695C" onclick="sc(this)"></div>
+        <div class="cs" style="background:#AD1457" data-c="#AD1457" onclick="sc(this)"></div>
+        <div class="cs" style="background:#37474F" data-c="#37474F" onclick="sc(this)"></div>
+      </div>
+    </div>
+    <button class="btn-cr" onclick="createCh()">CRIAR CANAL</button>
+  </div>
+</div>
+
 <div id="app">
-  <!-- SIDEBAR -->
   <div id="sidebar">
-    <div class="sidebar-logo">
+    <div class="sb-logo">
       <div class="icon"></div>
       <span>YT AUTOMATOR</span>
     </div>
-    <nav class="sidebar-nav">
-      <div class="nav-item active" onclick="showPage('jarvis', this)">
-        <span class="nav-icon">🤖</span>
-        <span>Jarvis IA</span>
-      </div>
-      <div class="nav-item" onclick="showPage('downloads', this)">
-        <span class="nav-icon">📦</span>
-        <span>Downloads</span>
-      </div>
-      <div class="nav-item" onclick="showPage('guide', this)">
-        <span class="nav-icon">📋</span>
-        <span>Guia Rápido</span>
-      </div>
-      <div class="nav-item" onclick="showPage('updates', this)">
-        <span class="nav-icon">🔔</span>
-        <span>Atualizações</span>
-      </div>
-      <div class="nav-item" onclick="showPage('settings', this)">
-        <span class="nav-icon">⚙️</span>
-        <span>Configurações</span>
-      </div>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="api-status">
-        <div class="api-dot"></div>
-        <span>Claude conectado</span>
-      </div>
-      <button onclick="doLogout()" style="margin-top:12px;width:100%;background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:8px;color:var(--text-muted);font-family:var(--font-body);font-size:12px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;" onmouseover="this.style.borderColor='rgba(255,0,0,0.3)';this.style.color='#ff6666'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.color='var(--text-muted)'">⏻ Sair</button>
+    <div class="ch-area">
+      <div class="sb-label">Ferramentas</div>
+      <div class="ni active" onclick="sp('jarvis',this)"><span class="ic">🤖</span><span>Jarvis IA</span></div>
+      <div class="ni" onclick="sp('downloads',this)"><span class="ic">📦</span><span>Downloads</span></div>
+      <div class="ni" onclick="sp('guide',this)"><span class="ic">📋</span><span>Guia Rápido</span></div>
+      <div class="ni" onclick="sp('updates',this)"><span class="ic">🔔</span><span>Atualizações</span></div>
+      <div class="ni" onclick="sp('settings',this)"><span class="ic">⚙️</span><span>Configurações</span></div>
+      <div class="sb-div"></div>
+      <div class="sb-label">Meus Canais</div>
+      <div id="ch-list"></div>
+      <div class="add-ch" onclick="openModal()"><span style="font-size:13px">+</span><span>Adicionar canal</span></div>
+    </div>
+    <div class="sb-ft">
+      <div class="api-st"><div class="api-dot"></div><span>Claude conectado</span></div>
+      <button class="logout-btn" onclick="doLogout()">⏻ Sair</button>
     </div>
   </div>
 
-  <!-- MAIN -->
   <div id="main">
 
-    <!-- JARVIS PAGE -->
     <div class="page active" id="page-jarvis">
-      <div class="chat-header">
-        <div class="chat-header-avatar">J</div>
-        <div class="chat-header-info">
-          <h2>Jarvis — Suporte Técnico</h2>
-          <p>Especialista em n8n · APIs · Configuração · Erros</p>
-        </div>
-        <button onclick="clearChat()" style="margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:7px 14px;color:var(--text-muted);font-family:var(--font-body);font-size:12px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='rgba(255,0,0,0.3)';this.style.color='#ff6666'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.color='var(--text-muted)'">🗑 Limpar</button>
+      <div class="ch-hd">
+        <div class="ch-hd-av">J</div>
+        <div class="ch-hd-info"><h2>Jarvis — Suporte Técnico</h2><p>Especialista em n8n · APIs · Configuração · Erros</p></div>
+        <button class="clr-btn" onclick="clearChat()">🗑 Limpar</button>
       </div>
       <div id="chat-messages">
-        <div class="msg">
-          <div class="msg-avatar bot">J</div>
-          <div class="msg-bubble bot">Olá! Sou o Jarvis, seu suporte técnico para esta automação.<br><br>Fui treinado com todo o processo de instalação — incluindo cada erro que apareceu durante 2 dias de construção e como foi resolvido.<br><br>Estou aqui para te ajudar a configurar o n8n, resolver erros de API e colocar tudo funcionando. Qual é sua dúvida?</div>
-        </div>
+        <div class="msg"><div class="ma bot">J</div><div class="mb bot">Olá! Sou o Jarvis, suporte técnico desta automação.<br><br>Fui treinado com todo o processo de instalação — incluindo cada erro e solução encontrados na prática.<br><br>Estou aqui para te ajudar a configurar o n8n, resolver erros de API e colocar tudo funcionando. Qual é sua dúvida?</div></div>
       </div>
-      <div class="quick-questions">
-        <button class="quick-btn" onclick="quickAsk('Como organizo as pastas no Google Drive?')">Google Drive</button>
-        <button class="quick-btn" onclick="quickAsk('Erro no Shotstack: Downloading assets failed.')">Erro Shotstack</button>
-        <button class="quick-btn" onclick="quickAsk('O vídeo está indo para o canal errado no YouTube.')">Canal errado</button>
-        <button class="quick-btn" onclick="quickAsk('Quais APIs preciso ativar no Google Cloud?')">Google Cloud</button>
-        <button class="quick-btn" onclick="quickAsk('O node LISTA MP3s está pegando músicas de todas as pastas.')">LISTA MP3s</button>
-        <button class="quick-btn" onclick="quickAsk('Qual é o custo mensal para rodar essa automação?')">Custos</button>
+      <div class="qq">
+        <button class="qb" onclick="qa('Como organizo as pastas no Google Drive?')">Google Drive</button>
+        <button class="qb" onclick="qa('Erro no Shotstack: Downloading assets failed.')">Erro Shotstack</button>
+        <button class="qb" onclick="qa('O vídeo está indo para o canal errado.')">Canal errado</button>
+        <button class="qb" onclick="qa('Quais APIs preciso ativar no Google Cloud?')">Google Cloud</button>
+        <button class="qb" onclick="qa('O node LISTA MP3s está pegando músicas de todas as pastas.')">LISTA MP3s</button>
+        <button class="qb" onclick="qa('Qual é o custo mensal para rodar essa automação?')">Custos</button>
       </div>
-      <div class="chat-input-area">
-        <input id="chat-input" placeholder="Descreva seu erro ou dúvida técnica..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}" />
-        <button class="btn-send" id="send-btn" onclick="sendMsg()">↑</button>
+      <div class="ci-area">
+        <input id="chat-input" placeholder="Descreva seu erro ou dúvida técnica..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"/>
+        <button class="bs" id="send-btn" onclick="sendMsg()">↑</button>
       </div>
     </div>
 
-    <!-- DOWNLOADS PAGE -->
     <div class="page" id="page-downloads">
-      <div class="page-title">DOWNLOADS</div>
-      <div class="page-subtitle">Todos os arquivos necessários para instalar a automação</div>
-      <div class="downloads-grid">
-        <div class="download-card">
-          <div class="card-icon">⚡</div>
-          <div class="card-tag">Principal</div>
-          <div class="card-title">Workflow n8n</div>
-          <div class="card-desc">Arquivo JSON com todo o fluxo de automação pronto. Importe diretamente no n8n e configure suas credenciais.</div>
-          <a class="btn-download" href="workflow.json" download>
-            ↓ Baixar workflow.json
-          </a>
+      <div class="pi">
+        <div class="pt">DOWNLOADS</div>
+        <div class="ps">Arquivos para instalar a automação</div>
+        <div class="dg">
+          <div class="dc"><div class="dc-icon">⚡</div><div class="dc-tag">Principal</div><div class="dc-title">Workflow n8n</div><div class="dc-desc">JSON com o fluxo completo. Importe no n8n e configure suas credenciais.</div><a class="btn-dl" href="workflow.json" download>↓ Baixar workflow.json</a></div>
+          <div class="dc"><div class="dc-icon">📖</div><div class="dc-tag">Guia completo</div><div class="dc-title">Manual de Instalação</div><div class="dc-desc">Passo a passo com todas as APIs. Do zero até o primeiro vídeo postado.</div><a class="btn-dl" href="GUIA_AUTOMACAO_YOUTUBE.docx" download>↓ Baixar Guia.docx</a></div>
         </div>
-        <div class="download-card">
-          <div class="card-icon">📖</div>
-          <div class="card-tag">Guia completo</div>
-          <div class="card-title">Manual de Instalação</div>
-          <div class="card-desc">Guia passo a passo com todas as APIs, configurações e prints. Do zero até o primeiro vídeo postado.</div>
-          <a class="btn-download" href="GUIA_AUTOMACAO_YOUTUBE.docx" download>
-            ↓ Baixar Guia.docx
-          </a>
-        </div>
-
       </div>
     </div>
 
-    <!-- GUIDE PAGE -->
     <div class="page" id="page-guide">
-      <div class="page-title">GUIA RÁPIDO</div>
-      <div class="page-subtitle">Checklist de instalação em ordem</div>
-
-      <div class="guide-section">
-        <h3>ANTES DE COMEÇAR</h3>
-        <div class="guide-step">
-          <div class="guide-step-num">1</div>
-          <div class="guide-step-content">
-            <h4>Criar conta no n8n</h4>
-            <p>Acesse <code>app.n8n.io</code> → Sign Up → confirme o email</p>
-          </div>
+      <div class="pi">
+        <div class="pt">GUIA RÁPIDO</div>
+        <div class="ps">Clique em cada etapa para marcar como concluída</div>
+        <div class="gs">
+          <h3>ANTES DE COMEÇAR</h3>
+          <div class="gst" onclick="tgStep(this)" id="s1"><div class="gst-num">1</div><div class="gst-content"><h4>Criar conta no n8n</h4><p>Acesse <code>app.n8n.io</code> → Sign Up → confirme o email</p></div><div class="gst-ck"></div></div>
+          <div class="gst" onclick="tgStep(this)" id="s2"><div class="gst-num">2</div><div class="gst-content"><h4>Chave API do Claude</h4><p><code>console.anthropic.com</code> → API Keys → Create Key → salve <code>sk-ant-...</code> → adicione U$5 em Billing</p></div><div class="gst-ck"></div></div>
+          <div class="gst" onclick="tgStep(this)" id="s3"><div class="gst-num">3</div><div class="gst-content"><h4>Google Cloud — APIs e OAuth</h4><p>Criar projeto → ativar YouTube Data API v3 + Gmail API + Drive API → criar chave de API → criar OAuth Client ID com redirect <code>https://app.n8n.io/rest/oauth2-credential/callback</code></p></div><div class="gst-ck"></div></div>
+          <div class="gst" onclick="tgStep(this)" id="s4"><div class="gst-num">4</div><div class="gst-content"><h4>Shotstack</h4><p><code>shotstack.io</code> → criar conta → copiar chave sandbox</p></div><div class="gst-ck"></div></div>
+          <div class="gst" onclick="tgStep(this)" id="s5"><div class="gst-num">5</div><div class="gst-content"><h4>Cloudinary</h4><p><code>cloudinary.com</code> → criar conta → copiar Cloud Name + API Key + API Secret → criar upload preset sem assinatura</p></div><div class="gst-ck"></div></div>
         </div>
-        <div class="guide-step">
-          <div class="guide-step-num">2</div>
-          <div class="guide-step-content">
-            <h4>Chave API do Claude</h4>
-            <p><code>console.anthropic.com</code> → API Keys → Create Key → salve a chave <code>sk-ant-...</code> → adicione U$5 em Billing</p>
-          </div>
+        <div class="gs">
+          <h3>GOOGLE DRIVE</h3>
+          <div class="gst" onclick="tgStep(this)" id="s6"><div class="gst-num">6</div><div class="gst-content"><h4>Estrutura de pastas</h4><p>Criar pasta <code>NOME_DO_CANAL</code> → subpastas com data <code>DDMMAAAA</code> → MP3s dentro. Pasta <code>THUMBS</code> separada. Todas com permissão pública.</p></div><div class="gst-ck"></div></div>
         </div>
-        <div class="guide-step">
-          <div class="guide-step-num">3</div>
-          <div class="guide-step-content">
-            <h4>Google Cloud — APIs e OAuth</h4>
-            <p>Criar projeto → ativar YouTube Data API v3 + Gmail API + Drive API → criar chave de API → criar OAuth Client ID com redirect <code>https://app.n8n.io/rest/oauth2-credential/callback</code></p>
-          </div>
+        <div class="gs">
+          <h3>CONFIGURAR NO N8N</h3>
+          <div class="gst" onclick="tgStep(this)" id="s7"><div class="gst-num">7</div><div class="gst-content"><h4>Importar workflow</h4><p>No n8n → 3 pontinhos → Import from File → selecionar <code>workflow.json</code></p></div><div class="gst-ck"></div></div>
+          <div class="gst" onclick="tgStep(this)" id="s8"><div class="gst-num">8</div><div class="gst-content"><h4>Configurar credenciais</h4><p>Clicar em cada node com triângulo vermelho e conectar as credenciais criadas</p></div><div class="gst-ck"></div></div>
+          <div class="gst" onclick="tgStep(this)" id="s9"><div class="gst-num">9</div><div class="gst-content"><h4>Ativar Execute Once</h4><p>No node <code>LISTA MP3s</code> → aba Settings → ativar Execute Once (obrigatório)</p></div><div class="gst-ck"></div></div>
+          <div class="gst" onclick="tgStep(this)" id="s10"><div class="gst-num">10</div><div class="gst-content"><h4>Publicar e testar</h4><p>Clicar em Publish → Play → aguardar 10-40 minutos → verificar no YouTube Studio</p></div><div class="gst-ck"></div></div>
         </div>
-        <div class="guide-step">
-          <div class="guide-step-num">4</div>
-          <div class="guide-step-content">
-            <h4>Shotstack</h4>
-            <p><code>shotstack.io</code> → criar conta → copiar chave sandbox (gratuita para testes)</p>
-          </div>
-        </div>
-        <div class="guide-step">
-          <div class="guide-step-num">5</div>
-          <div class="guide-step-content">
-            <h4>Cloudinary</h4>
-            <p><code>cloudinary.com</code> → criar conta → copiar Cloud Name + API Key + API Secret → criar upload preset chamado <code>lacalle</code> sem assinatura</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="guide-section">
-        <h3>GOOGLE DRIVE</h3>
-        <div class="guide-step">
-          <div class="guide-step-num">6</div>
-          <div class="guide-step-content">
-            <h4>Estrutura de pastas</h4>
-            <p>Criar pasta <code>NOME_DO_CANAL</code> → dentro criar subpastas com data <code>DDMMAAAA</code> (ex: 17032026) → colocar MP3s dentro. Criar pasta <code>THUMBS</code> separada com imagens numeradas. Todas com permissão pública.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="guide-section">
-        <h3>CONFIGURAR NO N8N</h3>
-        <div class="guide-step">
-          <div class="guide-step-num">7</div>
-          <div class="guide-step-content">
-            <h4>Importar workflow</h4>
-            <p>No n8n → 3 pontinhos → Import from File → selecionar <code>workflow.json</code></p>
-          </div>
-        </div>
-        <div class="guide-step">
-          <div class="guide-step-num">8</div>
-          <div class="guide-step-content">
-            <h4>Configurar credenciais</h4>
-            <p>Clicar em cada node com triângulo vermelho e conectar as credenciais criadas nas etapas anteriores</p>
-          </div>
-        </div>
-        <div class="guide-step">
-          <div class="guide-step-num">9</div>
-          <div class="guide-step-content">
-            <h4>Ativar Execute Once</h4>
-            <p>No node <code>LISTA MP3s</code> → aba Settings → ativar Execute Once (obrigatório)</p>
-          </div>
-        </div>
-        <div class="guide-step">
-          <div class="guide-step-num">10</div>
-          <div class="guide-step-content">
-            <h4>Publicar e testar</h4>
-            <p>Clicar em Publish → clicar no botão Play para testar → aguardar 10-40 minutos → verificar vídeo no YouTube Studio</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="guide-section">
-        <h3>TODA SEMANA</h3>
-        <div class="guide-step">
-          <div class="guide-step-num">✓</div>
-          <div class="guide-step-content">
-            <h4>Domingo/Segunda</h4>
-            <p>Criar músicas no Suno → baixar em MP3 → criar pasta com data no Drive → subir MP3s → preparar thumbnail no Cloudinary → atualizar ID da pasta no node LISTA MP3s</p>
-          </div>
-        </div>
-        <div class="guide-step">
-          <div class="guide-step-num">🤖</div>
-          <div class="guide-step-content">
-            <h4>Terça e Sexta às 16:15</h4>
-            <p>O workflow roda sozinho e posta o vídeo automaticamente no YouTube com título, descrição e tags gerados pela IA</p>
-          </div>
+        <div class="gs">
+          <h3>ROTINA DE PUBLICAÇÃO</h3>
+          <div class="gst" style="cursor:default"><div class="gst-num">✓</div><div class="gst-content"><h4>Antes do dia de publicação</h4><p>Criar áudios → baixar em MP3 → criar pasta com data no Drive → subir MP3s → subir thumbnail no Cloudinary → atualizar ID da pasta no node LISTA MP3s</p></div></div>
+          <div class="gst" style="cursor:default;border-left:2px solid var(--green)"><div class="gst-num" style="background:var(--green)">🤖</div><div class="gst-content"><h4>No horário programado</h4><p>O workflow roda sozinho e posta automaticamente no YouTube com título, descrição e tags gerados pela IA</p></div></div>
         </div>
       </div>
     </div>
 
-    <!-- UPDATES PAGE -->
     <div class="page" id="page-updates">
-      <div class="page-title">ATUALIZAÇÕES</div>
-      <div class="page-subtitle">Histórico de versões e novidades do produto</div>
-      <div style="max-width:680px;">
-        <div class="guide-step" style="border-left:3px solid var(--red);background:var(--surface2);">
-          <div class="guide-step-num" style="background:var(--red);">★</div>
-          <div class="guide-step-content">
-            <h4>v1.0 — Lançamento <span style="font-size:11px;color:var(--text-muted);font-weight:400;margin-left:8px;">17/03/2026</span></h4>
-            <p>Versão inicial com workflow completo: busca YouTube → Claude → SEO → Drive → Cloudinary → Shotstack → YouTube. Jarvis de suporte técnico incluído.</p>
-          </div>
-        </div>
-        <div style="margin-top:24px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text-muted);">
-          🔔 Quando houver uma nova versão do workflow, você receberá instruções aqui para atualizar.
+      <div class="pi">
+        <div class="pt">ATUALIZAÇÕES</div>
+        <div class="ps">Histórico de versões</div>
+        <div style="max-width:620px">
+          <div class="gst" style="cursor:default;border-left:2px solid var(--red)"><div class="gst-num" style="background:var(--red)">★</div><div class="gst-content"><h4>v1.0 — Lançamento <span style="font-size:10px;color:var(--text-muted);font-weight:400;margin-left:8px">17/03/2026</span></h4><p>Versão inicial com workflow completo: busca YouTube → Claude → SEO → Drive → Cloudinary → Shotstack → YouTube. Jarvis de suporte incluído. Multi-canal com localStorage.</p></div></div>
+          <div style="margin-top:18px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;font-size:11.5px;color:var(--text-muted)">🔔 Quando houver uma nova versão do workflow, as instruções aparecerão aqui.</div>
         </div>
       </div>
     </div>
 
-    <!-- SETTINGS PAGE -->
     <div class="page" id="page-settings">
-      <div class="page-title">CONFIGURAÇÕES</div>
-      <div class="page-subtitle">Gerencie sua sessão e chave API</div>
-      <div style="max-width:480px;display:flex;flex-direction:column;gap:16px;">
-
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:24px;">
-          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px;">Chave API Claude</div>
-          <div style="position:relative;">
-            <input type="password" id="settings-api" placeholder="sk-ant-..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 40px 10px 14px;color:var(--text);font-family:var(--font-body);font-size:13px;outline:none;" />
-            <button type="button" onclick="toggleVis('settings-api',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;">👁</button>
-          </div>
-          <div style="font-size:11px;color:var(--text-dim);margin-top:8px;">Crie em console.anthropic.com · ~U$1-2/mês</div>
-          <button onclick="updateApiKey()" style="margin-top:14px;width:100%;background:var(--red);color:white;border:none;border-radius:4px;padding:10px;font-family:var(--font-body);font-size:13px;cursor:pointer;font-weight:500;">Salvar nova chave</button>
-          <div id="settings-msg" style="display:none;margin-top:10px;font-size:12px;color:#00C853;"></div>
+      <div class="pi">
+        <div class="pt">CONFIGURAÇÕES</div>
+        <div class="ps">Sessão e chave API</div>
+        <div class="sc">
+          <div class="sc-title">Chave API Claude</div>
+          <div style="position:relative"><input type="password" id="s-api" placeholder="sk-ant-..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:8px 36px 8px 11px;color:var(--text);font-family:var(--font-mono);font-size:11.5px;outline:none"/><button type="button" onclick="tv('s-api',this)" style="position:absolute;right:9px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px">👁</button></div>
+          <div style="font-size:10px;color:var(--text-dim);margin-top:5px">console.anthropic.com</div>
+          <button onclick="updKey()" style="margin-top:11px;width:100%;background:var(--red);color:white;border:none;border-radius:3px;padding:8px;font-family:var(--font-body);font-size:12px;cursor:pointer">Salvar nova chave</button>
+          <div id="s-msg" style="display:none;margin-top:7px;font-size:11px;color:var(--green)"></div>
         </div>
-
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:24px;">
-          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px;">Sessão</div>
-          <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Versão do produto: <span style="color:var(--text);">v1.0</span></div>
-          <button onclick="doLogout()" style="width:100%;background:transparent;border:1px solid rgba(255,0,0,0.3);border-radius:4px;padding:10px;color:#ff6666;font-family:var(--font-body);font-size:13px;cursor:pointer;">⏻ Encerrar sessão</button>
+        <div class="sc">
+          <div class="sc-title">Sessão</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Versão: <span style="color:var(--text)">v1.0</span></div>
+          <div class="cache-warn" style="margin-bottom:12px">⚠️ Limpar o cache do navegador apaga todos os dados dos seus canais configurados. Guarde suas informações em local seguro antes de limpar.</div>
+          <button onclick="doLogout()" style="width:100%;background:transparent;border:1px solid var(--border-red);border-radius:3px;padding:8px;color:#ff6666;font-family:var(--font-body);font-size:12px;cursor:pointer">⏻ Encerrar sessão</button>
         </div>
+      </div>
+    </div>
 
+    <div class="page" id="page-channel" style="overflow-y:auto">
+      <div class="ch-pg-hd">
+        <div class="ch-big-av" id="cp-av"></div>
+        <div class="ch-pg-info"><h2 id="cp-name">Canal</h2><p id="cp-niche"></p></div>
+        <button class="st-badge" id="st-btn" onclick="tgChStatus()"></button>
+        <button onclick="delCh()" style="margin-left:8px;background:transparent;border:1px solid rgba(255,0,0,0.2);border-radius:4px;padding:6px 11px;color:#ff6666;font-family:var(--font-body);font-size:11px;cursor:pointer">🗑 Excluir</button>
+      </div>
+      <div class="ch-fields">
+        <div class="fc"><div class="fc-title">Google Drive</div>
+          <div class="fg2"><label>ID Pasta Principal do Canal</label><input type="text" id="f1" placeholder="1uHse7ty8IfzPyeFRF..."/></div>
+          <div class="fg2"><label>ID Pasta Atual (data de hoje)</label><input type="text" id="f2" placeholder="18e-p4pC44YwGo0P..."/></div>
+        </div>
+        <div class="fc"><div class="fc-title">Cloudinary</div>
+          <div class="fg2"><label>Cloud Name</label><input type="text" id="f3" placeholder="drz2e5ana"/></div>
+          <div class="fg2"><label>Upload Preset</label><input type="text" id="f4" placeholder="lacalle"/></div>
+        </div>
+        <div class="fc"><div class="fc-title">YouTube</div>
+          <div class="fg2"><label>Canal ID</label><input type="text" id="f5" placeholder="UCBT2UZe5sYiFVV..."/></div>
+          <div class="fg2"><label>Chave API YouTube (AIza...)</label><input type="text" id="f6" placeholder="AIzaSyCyQr..."/></div>
+        </div>
+        <div class="fc"><div class="fc-title">Agendamento</div>
+          <div class="fg2"><label>Dias de publicação</label><input type="text" id="f7" placeholder="Ex: Terça e Sexta"/></div>
+          <div class="fg2"><label>Horário</label><input type="text" id="f8" placeholder="Ex: 16:15"/></div>
+        </div>
+        <div class="fc"><div class="fc-title">Shotstack</div>
+          <div class="fg2"><label>Chave API Shotstack</label><input type="text" id="f9" placeholder="jgU2BzcsGlG4rt..."/></div>
+          <div class="fg2"><label>URL Thumbnail atual (Cloudinary)</label><input type="text" id="f10" placeholder="https://res.cloudinary.com/..."/></div>
+        </div>
+        <div class="fc"><div class="fc-title">Informações do Canal</div>
+          <div class="fg2"><label>Nome do Canal</label><input type="text" id="f11" placeholder="Nome do canal"/></div>
+          <div class="fg2"><label>Nicho / Gênero</label><input type="text" id="f12" placeholder="Corridos, Lofi, Gospel..."/></div>
+        </div>
+      </div>
+      <div style="padding:0 28px 24px;display:flex;align-items:center">
+        <button class="save-btn" onclick="saveCh()">SALVAR ALTERAÇÕES</button>
+        <span class="save-msg" id="sv-msg">✓ Salvo!</span>
       </div>
     </div>
 
@@ -989,15 +403,14 @@
 </div>
 
 <script>
-const CORRECT_PASSWORD = 'Automator';
-let API_KEY = '';
-let isLoading = false;
-const chatHistory = [];
+const PWD='Automator';
+let API_KEY='',isLoading=false,curChId=null,selColor='#FF0000';
+const chatHistory=[];
 
-const SYSTEM_PROMPT = `Você é o Jarvis, suporte técnico especializado na automação de postagem automática no YouTube construída com n8n, Claude API, Shotstack, Cloudinary e Google Drive. Você NÃO é especialista em música ou conteúdo — você é especialista técnico em configurar, instalar e resolver problemas desta automação.
+const SYS=`Você é o Jarvis, suporte técnico especializado na automação de postagem automática no YouTube construída com n8n, Claude API, Shotstack, Cloudinary e Google Drive. Você NÃO é especialista em música ou conteúdo — você é especialista técnico em configurar, instalar e resolver problemas desta automação.
 
 ARQUITETURA DO WORKFLOW:
-Schedule Trigger (terças e sextas 16:15) → BUSCA YOUTUBE → GERA LETRAS → GERA SEO → ENVIA EMAIL → BUSCA PASTA DATA → LISTA MP3s → BAIXA MP3s → UPLOAD CLOUDINARY → MONTA TIMELINE → ENVIA SHOTSTACK → VERIFICA VÍDEO → HTTP Request (baixar MP4) → Upload a video (YouTube)
+Schedule Trigger → BUSCA YOUTUBE → GERA LETRAS → GERA SEO → ENVIA EMAIL → BUSCA PASTA DATA → LISTA MP3s → BAIXA MP3s → UPLOAD CLOUDINARY → MONTA TIMELINE → ENVIA SHOTSTACK → VERIFICA VÍDEO → HTTP Request (baixar MP4) → Upload a video (YouTube)
 
 ESTRUTURA GOOGLE DRIVE:
 - Pasta principal com nome do canal
@@ -1008,214 +421,227 @@ ESTRUTURA GOOGLE DRIVE:
 
 ERROS E SOLUÇÕES:
 1. n8n senha errada: Forgot password no app.n8n.io
-2. YouTube API não aparece para restringir: Ativar primeiro em Biblioteca do Google Cloud
+2. YouTube API não aparece: Ativar primeiro em Biblioteca do Google Cloud
 3. Claude sem créditos: console.anthropic.com → Billing → Add Credits
-4. Drive retorna vazio: Arquivos são WAV não MP3, mudar mimeType para audio/mpeg
+4. Drive retorna vazio: Arquivos WAV não MP3, mudar mimeType para audio/mpeg
 5. n8n out of memory: Usar MP3 nunca WAV
-6. Cloudinary unsupported file type jpeg: URL /video/upload + resource_type=video
-7. Cloudinary MP3s salvos como .jpg: usar .replace('/image/upload/','/video/upload/').replace('.jpg','.mp3')
-8. Shotstack downloading assets failed: Google Drive bloqueia. Subir tudo para Cloudinary primeiro
+6. Cloudinary unsupported file type: URL /video/upload + resource_type=video
+7. Cloudinary MP3s como .jpg: usar .replace('/image/upload/','/video/upload/').replace('.jpg','.mp3')
+8. Shotstack downloading assets failed: Google Drive bloqueia. Subir tudo para Cloudinary
 9. Asset type mismatch: URL ainda /image/upload, usar replace no JavaScript
-10. JSON not valid: Montar JSON no node Code JS e usar Body Type Raw no HTTP Request
-11. YouTube Unauthorized: Adicionar escopos youtube, youtube.upload, youtube.force-ssl no Google Cloud OAuth
+10. JSON not valid: Montar JSON no node Code JS e usar Body Type Raw
+11. YouTube Unauthorized: Adicionar escopos youtube, youtube.upload, youtube.force-ssl
 12. youtubeSignupRequired: Conta OAuth sem canal. Adicionar como Gestor no YouTube Studio
-13. Vídeo canal errado: Adicionar email n8n como Gestor no YouTube Studio do canal correto
+13. Vídeo canal errado: Adicionar email n8n como Gestor no YouTube Studio correto
 14. Gmail/Drive API not enabled: Ativar no Google Cloud Console
 15. Invalid URL must start with http: Usar {{ $json.response?.url ?? $json.url }}
 16. Binary file not found: HTTP Request com Response Format File + Put Output in Field data
 17. Acesso bloqueado Google: Adicionar email em Usuários de Teste no OAuth Console
-18. Shotstack file not found undefined: Thumbnail no Google Drive bloqueia, subir para Cloudinary
+18. Shotstack file not found: Thumbnail no Google Drive bloqueia, subir para Cloudinary
 19. LISTA MP3s pegando 40 itens: Ativar Execute Once em Settings do node
 
 CONFIGURAÇÕES EXATAS:
-- Upload Cloudinary: URL /video/upload, body fields: file(n8n binary), upload_preset=lacalle, resource_type=video
+- Upload Cloudinary: URL /video/upload, body: file(n8n binary), upload_preset, resource_type=video
 - LISTA MP3s: Query String, 'ID_PASTA' in parents and mimeType='audio/mpeg', Execute Once ativado
-- HTTP Request baixar vídeo: GET, URL={{ $json.response?.url ?? $json.url }}, Response Format=File, Output Field=data
-- VERIFICA VÍDEO URL: https://api.shotstack.io/stage/render/{{ $('ENVIA SHOTSTACK').item.json.response.id }}
+- HTTP Request baixar vídeo: GET, URL={{ $json.response?.url ?? $json.url }}, Response Format=File
+- VERIFICA VÍDEO: https://api.shotstack.io/stage/render/{{ $('ENVIA SHOTSTACK').item.json.response.id }}
 - Title YouTube: {{ $('GERA SEO').first().json.content[0].text.split('## TITULO:\\n')[1].split('\\n')[0].trim() }}
 
-CUSTOS: Claude ~U$1-3/mês, Shotstack U$49+/mês produção (sandbox grátis), Cloudinary grátis, Google grátis
+CUSTOS: Claude ~U$1-3/mês, Shotstack sandbox grátis/produção U$49+, Cloudinary grátis, Google grátis
 
 Responda em português brasileiro. Seja direto e técnico. Formate código quando necessário.`;
 
-function toggleVis(id, btn) {
-  const el = document.getElementById(id);
-  if (el.type === 'password') { el.type = 'text'; btn.textContent = '🙈'; }
-  else { el.type = 'password'; btn.textContent = '👁'; }
+function tv(id,btn){const e=document.getElementById(id);if(e.type==='password'){e.type='text';btn.textContent='🙈';}else{e.type='password';btn.textContent='👁';}}
+
+function doLogin(){
+  const p=document.getElementById('lp').value;
+  const a=document.getElementById('la').value.trim();
+  const err=document.getElementById('lerr');
+  if(p!==PWD){err.style.display='block';err.textContent='Senha incorreta.';return;}
+  if(!a.startsWith('sk-ant-')){err.style.display='block';err.textContent='Chave API inválida. Deve começar com sk-ant-...';return;}
+  API_KEY=a;localStorage.setItem('yt_api',a);sessionStorage.setItem('yt_auth','1');
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  renderChs();restoreSteps();restoreChat();
 }
 
-function doLogin() {
-  const pass = document.getElementById('login-pass').value;
-  const api = document.getElementById('login-api').value.trim();
-  const err = document.getElementById('login-error');
-
-  if (pass !== CORRECT_PASSWORD) {
-    err.style.display = 'block';
-    err.textContent = 'Senha incorreta. Tente novamente.';
-    return;
-  }
-
-  if (!api.startsWith('sk-ant-')) {
-    err.style.display = 'block';
-    err.textContent = 'Chave API inválida. Deve começar com sk-ant-...';
-    return;
-  }
-
-  API_KEY = api;
-  sessionStorage.setItem('yt_auth', '1');
-  sessionStorage.setItem('yt_api', api);
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
+function doLogout(){
+  sessionStorage.removeItem('yt_auth');sessionStorage.removeItem('yt_chat');API_KEY='';
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('lp').value='';document.getElementById('lerr').style.display='none';
+  chatHistory.length=0;
+  document.getElementById('chat-messages').innerHTML='<div class="msg"><div class="ma bot">J</div><div class="mb bot">Olá! Sou o Jarvis. Como posso ajudar?</div></div>';
 }
 
-function clearChat() {
-  chatHistory.length = 0;
-  sessionStorage.removeItem('yt_chat');
-  const msgs = document.getElementById('chat-messages');
-  msgs.innerHTML = '';
-  addMessage('bot', 'Conversa reiniciada. Como posso ajudar?');
-}
-
-function updateApiKey() {
-  const newKey = document.getElementById('settings-api').value.trim();
-  const msg = document.getElementById('settings-msg');
-  if (!newKey.startsWith('sk-ant-')) {
-    msg.style.color = '#ff6666';
-    msg.textContent = 'Chave inválida. Deve começar com sk-ant-...';
-    msg.style.display = 'block';
-    return;
-  }
-  API_KEY = newKey;
-  sessionStorage.setItem('yt_api', newKey);
-  msg.style.color = '#00C853';
-  msg.textContent = '✓ Chave atualizada com sucesso!';
-  msg.style.display = 'block';
-  setTimeout(() => { msg.style.display = 'none'; }, 3000);
-}
-
-function doLogout() {
-  sessionStorage.removeItem('yt_auth');
-  sessionStorage.removeItem('yt_api');
-  sessionStorage.removeItem('yt_chat');
-  API_KEY = '';
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-pass').value = '';
-  document.getElementById('login-api').value = '';
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  if (sessionStorage.getItem('yt_auth') === '1') {
-    const savedHistory = sessionStorage.getItem('yt_chat');
-    if (savedHistory) {
-      try {
-        const parsed = JSON.parse(savedHistory);
-        parsed.forEach(m => { chatHistory.push(m); addMessage(m.role === 'user' ? 'user' : 'bot', m.content); });
-        const msgs = document.getElementById('chat-messages');
-        msgs.scrollTop = msgs.scrollHeight;
-      } catch(e) {}
-    }
-    API_KEY = sessionStorage.getItem('yt_api') || '';
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
+window.addEventListener('DOMContentLoaded',()=>{
+  const sa=localStorage.getItem('yt_api');
+  if(sa)document.getElementById('la').value=sa;
+  if(sessionStorage.getItem('yt_auth')==='1'){
+    API_KEY=sa||'';
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    renderChs();restoreSteps();restoreChat();
   }
 });
 
-function showPage(id, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  el.classList.add('active');
+function sp(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni,.ch-ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el)el.classList.add('active');
 }
 
-function addMessage(role, text) {
-  const msgs = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = `msg ${role}`;
-  const avatar = document.createElement('div');
-  avatar.className = `msg-avatar ${role}`;
-  avatar.textContent = role === 'bot' ? 'J' : 'V';
-  const bubble = document.createElement('div');
-  bubble.className = `msg-bubble ${role}`;
+function getChs(){try{return JSON.parse(localStorage.getItem('yt_chs')||'[]');}catch(e){return[];}}
+function saveChs(c){localStorage.setItem('yt_chs',JSON.stringify(c));}
+function initials(n){return n.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'CH';}
 
-  let html = text
-    .replace(/```([^`]+)```/gs, '<pre>$1</pre>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\n/g, '<br>');
-  bubble.innerHTML = html;
-
-  div.appendChild(avatar);
-  div.appendChild(bubble);
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-  return bubble;
+function renderChs(){
+  const list=document.getElementById('ch-list');list.innerHTML='';
+  getChs().forEach(ch=>{
+    const d=document.createElement('div');
+    d.className='ch-ni'+(curChId===ch.id?' active':'');
+    d.onclick=()=>openCh(ch.id);
+    d.innerHTML=`<div class="ch-av" style="background:${ch.color}">${initials(ch.name)}</div><div class="ch-in"><div class="ch-nm">${ch.name}</div><div class="ch-sb">${ch.niche||''}${ch.active!==false?' · ativo':' · pausado'}</div></div><div class="ch-dt" style="background:${ch.active!==false?'var(--green)':'var(--text-dim)'}"></div>`;
+    list.appendChild(d);
+  });
 }
 
-function showTyping() {
-  const msgs = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = 'msg';
-  div.id = 'typing-msg';
-  const avatar = document.createElement('div');
-  avatar.className = 'msg-avatar bot';
-  avatar.textContent = 'J';
-  const bubble = document.createElement('div');
-  bubble.className = 'msg-bubble bot';
-  bubble.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
-  div.appendChild(avatar);
-  div.appendChild(bubble);
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
+function openCh(id){
+  curChId=id;
+  const ch=getChs().find(c=>c.id===id);if(!ch)return;
+  renderChs();
+  document.getElementById('cp-av').textContent=initials(ch.name);
+  document.getElementById('cp-av').style.background=ch.color;
+  document.getElementById('cp-name').textContent=ch.name;
+  document.getElementById('cp-niche').textContent=ch.niche||'';
+  const active=ch.active!==false;
+  const sb=document.getElementById('st-btn');
+  sb.textContent=active?'● ATIVO':'○ PAUSADO';
+  sb.style.background=active?'rgba(0,200,83,0.1)':'rgba(255,255,255,0.05)';
+  sb.style.color=active?'var(--green)':'var(--text-muted)';
+  sb.style.border=active?'1px solid rgba(0,200,83,0.2)':'1px solid rgba(255,255,255,0.08)';
+  ['f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'].forEach((f,i)=>{
+    const keys=['driveMain','driveCurrent','cloudName','cloudPreset','ytId','ytKey','days','time','shotstack','thumb','name','niche'];
+    document.getElementById(f).value=ch[keys[i]]||'';
+  });
+  sp('channel',null);
 }
 
-function removeTyping() {
-  const t = document.getElementById('typing-msg');
-  if (t) t.remove();
+function saveCh(){
+  if(!curChId)return;
+  const chs=getChs();const idx=chs.findIndex(c=>c.id===curChId);if(idx<0)return;
+  const keys=['driveMain','driveCurrent','cloudName','cloudPreset','ytId','ytKey','days','time','shotstack','thumb','name','niche'];
+  ['f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'].forEach((f,i)=>{chs[idx][keys[i]]=document.getElementById(f).value;});
+  saveChs(chs);renderChs();
+  const m=document.getElementById('sv-msg');m.style.opacity='1';setTimeout(()=>m.style.opacity='0',2500);
 }
 
-async function sendMsg() {
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if (!text || isLoading) return;
-  input.value = '';
-  isLoading = true;
-  document.getElementById('send-btn').disabled = true;
+function tgChStatus(){
+  if(!curChId)return;
+  const chs=getChs();const idx=chs.findIndex(c=>c.id===curChId);if(idx<0)return;
+  chs[idx].active=chs[idx].active===false;
+  saveChs(chs);openCh(curChId);
+}
 
-  chatHistory.push({ role: 'user', content: text });
-  try { sessionStorage.setItem('yt_chat', JSON.stringify(chatHistory)); } catch(e) {}
-  addMessage('user', text);
-  showTyping();
+function delCh(){
+  if(!curChId)return;
+  if(!confirm('Excluir este canal? Esta ação não pode ser desfeita.'))return;
+  saveChs(getChs().filter(c=>c.id!==curChId));
+  curChId=null;renderChs();
+  sp('jarvis',document.querySelector('.ni'));
+  document.querySelector('.ni').classList.add('active');
+}
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages: chatHistory
-      })
+function openModal(){document.getElementById('modal-add').classList.add('open');}
+function closeModal(){document.getElementById('modal-add').classList.remove('open');}
+function sc(el){document.querySelectorAll('.cs').forEach(s=>s.classList.remove('sel'));el.classList.add('sel');selColor=el.dataset.c;}
+
+function createCh(){
+  const name=document.getElementById('nc-name').value.trim();if(!name)return;
+  const chs=getChs();const id='ch_'+Date.now();
+  chs.push({id,name,niche:document.getElementById('nc-niche').value.trim(),color:selColor,active:true,driveMain:'',driveCurrent:'',cloudName:'',cloudPreset:'',ytId:'',ytKey:'',days:'',time:'',shotstack:'',thumb:''});
+  saveChs(chs);renderChs();closeModal();
+  document.getElementById('nc-name').value='';document.getElementById('nc-niche').value='';
+  openCh(id);
+}
+
+function tgStep(el){
+  el.classList.toggle('done');
+  el.querySelector('.gst-ck').textContent=el.classList.contains('done')?'✓':'';
+  const done=[];document.querySelectorAll('.gst[id]').forEach(s=>{if(s.classList.contains('done'))done.push(s.id);});
+  localStorage.setItem('yt_guide',JSON.stringify(done));
+}
+
+function restoreSteps(){
+  try{JSON.parse(localStorage.getItem('yt_guide')||'[]').forEach(id=>{const e=document.getElementById(id);if(e){e.classList.add('done');e.querySelector('.gst-ck').textContent='✓';}});}catch(e){}
+}
+
+function updKey(){
+  const k=document.getElementById('s-api').value.trim();
+  const m=document.getElementById('s-msg');
+  if(!k.startsWith('sk-ant-')){m.style.color='#ff6666';m.textContent='Chave inválida.';m.style.display='block';return;}
+  API_KEY=k;localStorage.setItem('yt_api',k);
+  m.style.color='var(--green)';m.textContent='✓ Chave atualizada!';m.style.display='block';
+  setTimeout(()=>m.style.display='none',3000);
+}
+
+function addMsg(role,text){
+  const msgs=document.getElementById('chat-messages');
+  const d=document.createElement('div');d.className=`msg ${role}`;
+  const av=document.createElement('div');av.className=`ma ${role}`;av.textContent=role==='bot'?'J':'V';
+  const b=document.createElement('div');b.className=`mb ${role}`;
+  b.innerHTML=text.replace(/```([^`]+)```/gs,'<pre>$1</pre>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\n/g,'<br>');
+  d.appendChild(av);d.appendChild(b);msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showTyping(){
+  const msgs=document.getElementById('chat-messages');
+  const d=document.createElement('div');d.className='msg';d.id='typ';
+  const av=document.createElement('div');av.className='ma bot';av.textContent='J';
+  const b=document.createElement('div');b.className='mb bot';
+  b.innerHTML='<div class="typing-ind"><span></span><span></span><span></span></div>';
+  d.appendChild(av);d.appendChild(b);msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function rmTyping(){const t=document.getElementById('typ');if(t)t.remove();}
+
+function clearChat(){
+  chatHistory.length=0;sessionStorage.removeItem('yt_chat');
+  document.getElementById('chat-messages').innerHTML='';
+  addMsg('bot','Conversa reiniciada. Como posso ajudar?');
+}
+
+function restoreChat(){
+  try{
+    const s=JSON.parse(sessionStorage.getItem('yt_chat')||'[]');
+    if(s.length>0){document.getElementById('chat-messages').innerHTML='';s.forEach(m=>{chatHistory.push(m);addMsg(m.role==='user'?'user':'bot',m.content);});}
+  }catch(e){}
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('chat-input');const txt=inp.value.trim();
+  if(!txt||isLoading)return;
+  inp.value='';isLoading=true;document.getElementById('send-btn').disabled=true;
+  chatHistory.push({role:'user',content:txt});
+  try{sessionStorage.setItem('yt_chat',JSON.stringify(chatHistory));}catch(e){}
+  addMsg('user',txt);showTyping();
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1000,system:SYS,messages:chatHistory})
     });
-    const data = await res.json();
-    removeTyping();
-    const reply = data.content?.[0]?.text || 'Erro ao obter resposta.';
-    chatHistory.push({ role: 'assistant', content: reply });
-    try { sessionStorage.setItem('yt_chat', JSON.stringify(chatHistory)); } catch(e) {}
-    addMessage('bot', reply);
-  } catch(e) {
-    removeTyping();
-    addMessage('bot', 'Erro de conexão. Verifique sua internet e tente novamente.');
-  }
-
-  isLoading = false;
-  document.getElementById('send-btn').disabled = false;
+    const d=await r.json();rmTyping();
+    const rep=d.content?.[0]?.text||'Erro ao obter resposta.';
+    chatHistory.push({role:'assistant',content:rep});
+    try{sessionStorage.setItem('yt_chat',JSON.stringify(chatHistory));}catch(e){}
+    addMsg('bot',rep);
+  }catch(e){rmTyping();addMsg('bot','Erro de conexão. Tente novamente.');}
+  isLoading=false;document.getElementById('send-btn').disabled=false;
 }
 
-function quickAsk(text) {
-  document.getElementById('chat-input').value = text;
-  sendMsg();
-}
+function qa(t){document.getElementById('chat-input').value=t;sendMsg();}
 </script>
 </body>
 </html>
